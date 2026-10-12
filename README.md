@@ -2,7 +2,7 @@
 
 A shared, self-updating map of research themes, methods and regions across the 13 PA faculty — built to make collaboration opportunities visible.
 
-**Open the app:** https://shuwszsw.github.io/PA_research_net/
+**Open the app:** https://shuwenzsw.github.io/PA_research_net/
 
 ## How it works
 
