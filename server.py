@@ -73,6 +73,12 @@ class H(SimpleHTTPRequestHandler):
                               "updated_at": body.get("at", "")}
             save(d)
             return self._json({"ok": True})
+        if p == "/api/feedback":
+            d.setdefault("feedback", []).append({
+                "at": body.get("at", ""), "who": body.get("who", ""),
+                "changes": body.get("changes", []), "note": body.get("note", "")})
+            save(d)
+            return self._json({"ok": True})
         self._json({"ok": False, "error": "unknown route"}, 404)
 
 if __name__ == "__main__":
