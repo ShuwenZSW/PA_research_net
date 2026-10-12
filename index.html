@@ -321,14 +321,15 @@ function renderLegend(){
 /* filters */
 const filt = {theme:"", method:"", region:""};
 function fillFilters(){
-  const dims = [["fTheme","themes"],["fMethod","methods"],["fRegion","regions"]];
-  dims.forEach(([id, dim])=>{
+  const dims = [["fTheme","theme","themes"],["fMethod","method","methods"],["fRegion","region","regions"]];
+  dims.forEach(([id, key, dim])=>{
     const sel = document.getElementById(id); const cur = sel.value;
     sel.innerHTML = '<option value="">All</option>';
     const seen = new Set();
     nodes.forEach(n => n[dim].forEach(t=>{ if(!seen.has(t.key)){ seen.add(t.key);
       const o=document.createElement("option"); o.value=t.key; o.textContent=t.label; sel.appendChild(o); } }));
     sel.value = cur;
+    sel.onchange = e => { filt[key] = e.target.value; };
   });
 }
 document.getElementById("resetBtn").addEventListener("click", ()=>{
