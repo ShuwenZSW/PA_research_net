@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PA Collab Hub · DGPA Shared Research Network</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1f2933; --muted:#6b7280; --line:#e5e7eb; --accent:#1f4e79; --comp:#7a5cb0; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif; background:var(--bg); color:var(--ink); height:100vh; overflow:hidden; }
+  header { padding:9px 18px; background:var(--panel); border-bottom:1px solid var(--line); display:flex; align-items:baseline; gap:14px; }
+  header h1 { font-size:16.5px; }
+  header .sub { font-size:11.5px; color:var(--muted); }
+  header .status { margin-left:auto; font-size:11px; color:var(--muted); }
+  #controls { display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; padding:7px 18px; background:var(--panel); border-bottom:1px solid var(--line); font-size:12px; }
+  #controls select { font-size:12px; padding:2px 6px; border:1px solid var(--line); border-radius:6px; background:#fff; }
+  .btn { border:1px solid var(--line); background:#fff; border-radius:6px; padding:3px 12px; font-size:12px; cursor:pointer; }
+  .btn.on  { border-color:var(--accent); background:var(--accent); color:#fff; }
+  .btn.onC { border-color:var(--comp);  background:var(--comp);  color:#fff; }
+  main { display:flex; height:calc(100vh - 106px); }
+  #stage { flex:1; position:relative; }
+  canvas { display:block; width:100%; height:100%; cursor:grab; }
+  canvas:active { cursor:grabbing; }
+  #panel { width:380px; background:var(--panel); border-left:1px solid var(--line); display:flex; flex-direction:column; }
+  #tabs { display:flex; border-bottom:1px solid var(--line); }
+  #tabs button { flex:1; padding:8px 4px; font-size:12.5px; background:#fafafa; border:none; border-right:1px solid var(--line); cursor:pointer; color:var(--muted); }
+  #tabs button.on { background:#fff; color:var(--accent); font-weight:600; box-shadow:inset 0 -2px 0 var(--accent); }
+  #pbody { padding:14px; overflow-y:auto; font-size:13px; flex:1; }
+  #pbody h2 { font-size:15px; margin-bottom:4px; }
+  #pbody h3 { font-size:11.5px; color:var(--accent); letter-spacing:.4px; margin:11px 0 5px; }
+  .rank { color:var(--muted); font-size:12px; margin-bottom:8px; }
+  .tag { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; margin:0 4px 4px 0; border:1px solid var(--line); background:#f1f5f9; }
+  .tag.pri { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .tag.meth { border-color:#9db8d2; background:#eaf1f8; }
+  .tag.meth.pri { background:#2e75b6; border-color:#2e75b6; }
+  .tag.reg { border-color:#c9b8e0; background:#f3eefb; }
+  .tag.reg.pri { background:#7a5cb0; border-color:#7a5cb0; }
+  .conn { padding:7px 9px; border:1px solid var(--line); border-radius:8px; margin-bottom:6px; cursor:pointer; }
+  .conn:hover { border-color:var(--accent); }
+  .conn b { font-size:12.5px; }
+  .conn .w { float:right; color:var(--muted); font-size:11px; }
+  .conn small { color:var(--muted); display:block; margin-top:2px; }
+  #tip { position:absolute; pointer-events:none; background:rgba(17,24,39,.93); color:#fff; font-size:12px; padding:7px 11px; border-radius:6px; max-width:360px; display:none; z-index:10; line-height:1.55; }
+  #hint { position:absolute; left:12px; bottom:10px; font-size:11px; color:var(--muted); background:rgba(255,255,255,.85); padding:4px 8px; border-radius:6px; }
+  #legend { position:absolute; top:10px; right:12px; z-index:5; background:rgba(255,255,255,.93); border:1px solid var(--line); border-radius:8px; padding:9px 13px; font-size:11px; line-height:2; max-height:calc(100% - 56px); overflow-y:auto; box-shadow:0 1px 4px rgba(0,0,0,.08); }
+  #legend .lgdot { width:10px; height:10px; border-radius:3px; display:inline-block; margin-right:7px; vertical-align:-1px; }
+  #legend .lgtitle { color:var(--muted); font-size:10.5px; margin:4px 0 1px; }
+  #legend .lgtitle:first-child { margin-top:0; }
+  #legend svg { vertical-align:-2px; margin-right:6px; }
+  #toast { position:absolute; left:50%; top:14px; transform:translateX(-50%); background:rgba(17,24,39,.92); color:#fff; font-size:12px; padding:7px 16px; border-radius:16px; display:none; z-index:20; }
+  .empty { color:var(--muted); font-size:12.5px; line-height:1.8; }
+  .sig { border:1px solid var(--line); border-radius:8px; padding:9px 11px; margin-bottom:8px; }
+  .sig b { font-size:12.5px; }
+  .sig small { color:var(--muted); display:block; margin-top:3px; line-height:1.5; }
+  .sig .x { float:right; border:none; background:none; color:var(--muted); cursor:pointer; font-size:13px; }
+  .edrow { display:flex; align-items:center; gap:6px; margin-bottom:5px; font-size:12px; }
+  .edrow select, .edrow input[type=text], textarea { font-size:12px; padding:3px 6px; border:1px solid var(--line); border-radius:6px; background:#fff; }
+  .edrow .grow { flex:1; }
+  .savebar { position:sticky; bottom:0; background:var(--panel); padding:10px 0 4px; }
+  .btn.primary { border-color:var(--accent); background:var(--accent); color:#fff; padding:5px 18px; }
+  .btn.comp { border-color:var(--comp); background:var(--comp); color:#fff; padding:5px 18px; }
+  .muted { color:var(--muted); }
+  .savemsg { font-size:11.5px; margin-left:8px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>PA Collab Hub</h1>
+  <span class="sub">DGPA Public Administration · 13 faculty · live shared network</span>
+  <span class="status" id="status">loading…</span>
+</header>
+<div id="controls">
+  <span class="muted">Filter:</span>
+  <label>Theme <select id="fTheme"><option value="">All</option></select></label>
+  <label>Method <select id="fMethod"><option value="">All</option></select></label>
+  <label>Region <select id="fRegion"><option value="">All</option></select></label>
+  <span class="muted">View:</span>
+  <button id="viewSim" class="btn on">Similarity</button>
+  <button id="viewComp" class="btn">Complementarity</button>
+  <span class="muted" style="font-size:11px">color = theme domain · shape = rank · purple dashed = complementary pairs</span>
+  <button id="resetBtn" class="btn" style="margin-left:auto">Reset</button>
+</div>
+<main>
+  <div id="stage">
+    <canvas id="net"></canvas>
+    <div id="tip"></div>
+    <div id="legend"></div>
+    <div id="toast"></div>
+    <div id="hint">Drag nodes · Scroll to zoom · Click a node for details · Hover an edge for scores · Everyone's edits update this map in real time</div>
+  </div>
+  <div id="panel">
+    <div id="tabs">
+      <button data-tab="profile" class="on">Profile</button>
+      <button data-tab="signature">Signature Topics</button>
+      <button data-tab="edit">Edit My Profile</button>
+    </div>
+    <div id="pbody"></div>
+  </div>
+</main>
+<script>
+/* ================= state ================= */
+const DOMAINS = ["Chinese Politics & Governance","Social Policy & Welfare",
+  "Collaboration, Intergovernmental & Urban Governance","Public Finance & Budgeting",
+  "Policy Process & Political Communication","Digital Governance & AI",
+  "Public Sector Organization & HRM","Civic Participation & Governance Legitimacy"];
+const DOMAIN_COLORS = ["#C00000","#1F6E43","#8B6BB8","#DD6B20","#2C7A7B","#2B6CB0","#B7791F","#97266D","#4D7C0F","#0E7490"];
+const RANK_SHAPE = {"Chair Professor":"rect","Professor":"circle","Associate Professor":"square","Assistant Professor":"triangle"};
+const RANK_ORDER = ["Chair Professor","Professor","Associate Professor","Assistant Professor"];
+let DB = null;            // raw data from server
+let MODEL = null;         // computed network model
+let nodes = [], byId = {}, E = [];
+let viewMode = "sim", activeTab = "profile", selected = null;
+let dirtyEdit = false;
+let lastHash = "";
+
+/* ================= scoring engine ================= */
+function primKeys(prof, dim){ return new Set(Object.entries(prof[dim]).filter(([,w])=>w===2).map(([k])=>k)); }
+function dimOverlap(pa, pb, dim){
+  let s = 0; const shared = [];
+  for (const [k,wa] of Object.entries(pa[dim])){
+    const wb = pb[dim][k];
+    if (wb){ s += Math.min(wa, wb); shared.push(k); }
+  }
+  return [s, shared];
+}
+function computeModel(db){
+  const names = Object.keys(db.faculty);
+  const domains = DOMAINS.slice();
+  names.forEach(n => { const d = db.faculty[n].domain; if (!domains.includes(d)) domains.push(d); });
+  const domIdx = Object.fromEntries(domains.map((d,i)=>[d,i]));
+  const N = names.map(n => {
+    const f = db.faculty[n];
+    return { id:n, rank:f.rank, group:domIdx[f.domain], domain:f.domain, interests:f.interests||"",
+      themes:Object.entries(f.themes||{}).map(([k,w])=>({key:k,label:db.themes[k]||k,w})),
+      methods:Object.entries(f.methods||{}).map(([k,w])=>({key:k,label:db.methods[k]||k,w})),
+      regions:Object.entries(f.regions||{}).map(([k,w])=>({key:k,label:db.regions[k]||k,w})) };
+  });
+  const pairs = [];
+  for (let i=0;i<names.length;i++) for (let j=i+1;j<names.length;j++){
+    const a=names[i], b=names[j], fa=db.faculty[a], fb=db.faculty[b];
+    const [wt,st] = dimOverlap(fa,fb,"themes"), [wm,sm]=dimOverlap(fa,fb,"methods"), [wr,sr]=dimOverlap(fa,fb,"regions");
+    const combined = wt + 0.5*wm + 0.5*wr;
+    const ta=primKeys(fa,"themes"), tb=primKeys(fb,"themes");
+    const div = [...ta].filter(x=>!tb.has(x)).length + [...tb].filter(x=>!ta.has(x)).length;
+    const ma=primKeys(fa,"methods"), mb=primKeys(fb,"methods");
+    const mc = Math.min([...ma].filter(x=>!mb.has(x)).length + [...mb].filter(x=>!ma.has(x)).length, 4);
+    const ra=primKeys(fa,"regions"), rb=primKeys(fb,"regions");
+    const rc = Math.min([...ra].filter(x=>!rb.has(x)).length + [...rb].filter(x=>!ra.has(x)).length, 2);
+    const ci = Math.round((0.5*div + 1.0*mc + 0.75*rc)*10)/10;
+    const un = new Set([...st,...sm,...sr]);
+    let jac = 0; const u = new Set([...Object.keys(fa.themes),...Object.keys(fb.themes)]);
+    if (u.size) jac = st.length / u.size;
+    pairs.push({a,b,wt,wm,wr,combined,ci,jac,mc,rc,shared_t:st,shared_m:sm,shared_r:sr,
+      a_themes:[...ta].filter(x=>!tb.has(x)), b_themes:[...tb].filter(x=>!ta.has(x)),
+      a_meth:[...ma].filter(x=>!mb.has(x)).map(k=>db.methods[k]||k),
+      b_meth:[...mb].filter(x=>!ma.has(x)).map(k=>db.methods[k]||k)});
+  }
+  const edges = pairs.filter(p=>p.wt>=2 || p.combined>=2.5)
+    .map(p=>({a:p.a,b:p.b,combined:p.combined,wt:p.wt,wm:p.wm,wr:p.wr,jt:p.jac,
+      shared_t:p.shared_t.map(k=>db.themes[k]||k), shared_m:p.shared_m.map(k=>db.methods[k]||k),
+      shared_r:p.shared_r.map(k=>db.regions[k]||k)}));
+  const compEdges = pairs.filter(p=>p.ci>=5 && p.wt<=2)
+    .map(p=>({a:p.a,b:p.b,ci:p.ci,wt:p.wt,mc:p.mc,rc:p.rc,
+      a_themes:p.a_themes.map(k=>db.themes[k]||k), b_themes:p.b_themes.map(k=>db.themes[k]||k),
+      a_meth:p.a_meth, b_meth:p.b_meth}));
+  return {nodes:N, byId:Object.fromEntries(N.map(n=>[n.id,n])), pairs, edges, compEdges, domains, domIdx};
+}
+
+/* ================= signature topics (auto, live) ================= */
+function suggestSignatures(M){
+  const sugg = [];
+  const clusters = {};
+  M.nodes.forEach(n => { (clusters[n.domain] = clusters[n.domain]||[]).push(n.id); });
+  Object.entries(clusters).forEach(([d, mem]) => {
+    if (mem.length >= 3) sugg.push({type:"cluster", title:d, members:mem,
+      note:"Core cluster — " + mem.length + " faculty share this theme domain."});
+  });
+  const bridges = {};
+  M.compEdges.forEach(e => {
+    const da = M.byId[e.a].domain, db = M.byId[e.b].domain;
+    if (da === db) return;
+    const k = [da, db].sort().join(" × ");
+    (bridges[k] = bridges[k] || []).push(e);
+  });
+  Object.entries(bridges).map(([k, es]) => ({k, score: es.reduce((s,e)=>s+e.ci,0), n: es.length,
+      top: es.slice().sort((a,b)=>b.ci-a.ci)[0]}))
+    .sort((a,b)=>b.score-a.score).slice(0,3).forEach(b => {
+      sugg.push({type:"bridge", title:b.k, members:[b.top.a, b.top.b],
+        note:b.n + " complementary pairs (total CI " + b.score.toFixed(1) + "). Top: " +
+             b.top.a + " × " + b.top.b + " (CI " + b.top.ci + ")."});
+    });
+  return sugg;
+}
+
+/* ================= network rendering ================= */
+const canvas = document.getElementById("net"), ctx = canvas.getContext("2d");
+const tip = document.getElementById("tip"), pbody = document.getElementById("pbody");
+const stage = document.getElementById("stage");
+const btnSim = document.getElementById("viewSim"), btnComp = document.getElementById("viewComp");
+let W, H, DPR, zoom=1, panX=0, panY=0, hoverNode=null, hoverEdge=null, dragging=null, dragMoved=false, panning=null;
+function resize(){ DPR = window.devicePixelRatio||1; W = stage.clientWidth; H = stage.clientHeight;
+  canvas.width = W*DPR; canvas.height = H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); }
+window.addEventListener("resize", resize); resize();
+function ensureSize(){ if (stage.clientWidth>0 && canvas.width !== Math.round(stage.clientWidth*(window.devicePixelRatio||1))) {
+  const had=W; resize(); if (had===0) nodes.forEach(n=>{n.x=Math.random()*W; n.y=Math.random()*H;}); } }
+if (typeof ResizeObserver !== "undefined") new ResizeObserver(ensureSize).observe(stage);
+setInterval(ensureSize, 500);
+
+function rebuildNetwork(){
+  const oldPos = Object.fromEntries(nodes.map(n=>[n.id, [n.x, n.y]]));
+  MODEL = computeModel(DB);
+  nodes = MODEL.nodes.map(n => {
+    const p = oldPos[n.id];
+    return {...n, x: p ? p[0] : Math.random()*W, y: p ? p[1] : Math.random()*H, vx:0, vy:0};
+  });
+  byId = MODEL.byId;
+  E = viewMode === "sim" ? MODEL.edges : MODEL.compEdges;
+  applyGroupLayout();
+  renderLegend(); fillFilters();
+  if (selected) renderProfilePanel(selected);
+  if (activeTab === "signature") renderSignaturePanel();
+}
+function applyGroupLayout(){
+  const gs = [...new Set(nodes.map(n=>n.group))].sort((a,b)=>a-b);
+  gs.forEach((g,i)=>{
+    const ms = nodes.filter(n=>n.group===g);
+    const cx = W/2 + Math.cos(2*Math.PI*i/gs.length - Math.PI/2)*W*0.26;
+    const cy = H/2 + Math.sin(2*Math.PI*i/gs.length - Math.PI/2)*H*0.26;
+    ms.forEach((n,j)=>{ const a=2*Math.PI*j/Math.max(ms.length,1);
+      n.x = cx+Math.cos(a)*120; n.y = cy+Math.sin(a)*120; });
+  });
+}
+function groupColor(g){ return DOMAIN_COLORS[g % DOMAIN_COLORS.length]; }
+function nodeRadius(n){ const deg = E.filter(e=>e.a===n.id||e.b===n.id).length; return 15+Math.min(deg,8)*1.2; }
+function nodeMatch(n){
+  if (filt.theme && !n.themes.some(t=>t.key===filt.theme)) return false;
+  if (filt.method && !n.methods.some(t=>t.key===filt.method)) return false;
+  if (filt.region && !n.regions.some(t=>t.key===filt.region)) return false;
+  return true;
+}
+function tick(){
+  const k=140;
+  nodes.forEach(n=>{ n.vx*=0.55; n.vy*=0.55; });
+  for(let i=0;i<nodes.length;i++) for(let j=i+1;j<nodes.length;j++){
+    const a=nodes[i], b=nodes[j]; let dx=b.x-a.x, dy=b.y-a.y;
+    let d=Math.max(Math.hypot(dx,dy),1); const f=k*k/(d*d)*(d>650?0:1); dx/=d; dy/=d;
+    a.vx-=dx*f; a.vy-=dy*f; b.vx+=dx*f; b.vy+=dy*f;
+    const minD=nodeRadius(a)+nodeRadius(b)+12;
+    if(d<minD){ const p=(minD-d)*0.35; a.vx-=dx*p; a.vy-=dy*p; b.vx+=dx*p; b.vy+=dy*p; }
+  }
+  E.forEach(e=>{
+    const a=byId[e.a], b=byId[e.b]; let dx=b.x-a.x, dy=b.y-a.y;
+    let d=Math.max(Math.hypot(dx,dy),1); const strength = viewMode==="sim" ? e.combined : e.ci;
+    const f=(d-k)*0.035*(0.5+strength/8); dx/=d; dy/=d;
+    a.vx+=dx*f; a.vy+=dy*f; b.vx-=dx*f; b.vy-=dy*f;
+  });
+  const cents={}; const gs=[...new Set(nodes.map(n=>n.group))];
+  gs.forEach(g=>cents[g]={x:0,y:0,c:0});
+  nodes.forEach(n=>{ cents[n.group].x+=n.x; cents[n.group].y+=n.y; cents[n.group].c++; });
+  gs.forEach(g=>{ cents[g].x/=cents[g].c; cents[g].y/=cents[g].c; });
+  nodes.forEach(n=>{ if(n===dragging) return;
+    n.vx+=(W/2-n.x)*0.0012+(cents[n.group].x-n.x)*0.005;
+    n.vy+=(H/2-n.y)*0.0012+(cents[n.group].y-n.y)*0.005;
+    n.x+=Math.max(-8,Math.min(8,n.vx)); n.y+=Math.max(-8,Math.min(8,n.vy)); });
+}
+function drawShape(x,y,r,shape,color,hl){
+  ctx.beginPath();
+  if(shape==="rect"||shape==="square"){ const s=r*1.5; ctx.rect(x-s/2,y-s/2,s,s); }
+  else if(shape==="triangle"){ ctx.moveTo(x,y-r); ctx.lineTo(x+r*0.95,y+r*0.75); ctx.lineTo(x-r*0.95,y+r*0.75); ctx.closePath(); }
+  else ctx.arc(x,y,r,0,Math.PI*2);
+  ctx.fillStyle=color; ctx.globalAlpha=hl?1:0.88; ctx.fill(); ctx.globalAlpha=1;
+  ctx.lineWidth=hl?3:1.5; ctx.strokeStyle="#fff"; ctx.stroke();
+}
+function draw(){
+  ctx.clearRect(0,0,W,H); ctx.save(); ctx.translate(panX,panY); ctx.scale(zoom,zoom);
+  const focus = hoverNode||selected; const neigh={};
+  if(focus) E.forEach(e=>{ if(e.a===focus.id) neigh[e.b]=1; if(e.b===focus.id) neigh[e.a]=1; });
+  const dimAll=!!focus;
+  E.forEach(e=>{
+    const a=byId[e.a], b=byId[e.b]; const isHov=hoverEdge===e;
+    const inF=focus&&(e.a===focus.id||e.b===focus.id);
+    const strength = viewMode==="sim" ? e.combined : e.ci;
+    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
+    ctx.lineWidth=(0.7+strength*0.5)*(isHov?1.5:1);
+    ctx.setLineDash(viewMode==="comp" ? [7,4] : []);
+    ctx.strokeStyle=inF ? (viewMode==="sim"?"#1f4e79":"#7a5cb0") : (viewMode==="sim" ? (a.group===b.group?"#9ca3af":"#d9c6a5") : "#b9a8d8");
+    ctx.globalAlpha=dimAll?(inF?0.92:0.08):(isHov?0.95:Math.min(0.2+strength*0.08,0.85));
+    ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha=1;
+  });
+  nodes.forEach(n=>{
+    const r=nodeRadius(n), ok=nodeMatch(n);
+    const isF=focus&&(n===focus||neigh[n.id]);
+    drawShape(n.x,n.y,r,RANK_SHAPE[n.rank],groupColor(n.group),n===focus||n===hoverNode);
+    if((dimAll&&!isF)||!ok){ ctx.beginPath(); ctx.arc(n.x,n.y,r+3,0,Math.PI*2); ctx.fillStyle="rgba(247,248,250,0.75)"; ctx.fill(); }
+    if(ok&&!((dimAll)&&!isF)){
+      ctx.font="bold 11px sans-serif"; ctx.fillStyle="#1f2933"; ctx.textAlign="center";
+      ctx.fillText(n.id, n.x, n.y+r+13);
+    }
+  });
+  ctx.restore();
+}
+function loop(){ tick(); draw(); requestAnimationFrame(loop); }
+
+function renderLegend(){
+  const svg = {
+    "Chair Professor":'<svg width="12" height="12"><rect x="1" y="1" width="10" height="10" rx="1.5" fill="#4b5563"/></svg>',
+    "Professor":'<svg width="12" height="12"><circle cx="6" cy="6" r="5.5" fill="#4b5563"/></svg>',
+    "Associate Professor":'<svg width="12" height="12"><rect x="1.5" y="1.5" width="9" height="9" fill="#4b5563"/></svg>',
+    "Assistant Professor":'<svg width="12" height="12"><polygon points="6,1 11,11 1,11" fill="#4b5563"/></svg>'};
+  const counts = {}; nodes.forEach(n=>counts[n.group]=(counts[n.group]||0)+1);
+  document.getElementById("legend").innerHTML =
+    '<div class="lgtitle">Theme domain (color)</div>' +
+    MODEL.domains.map((d,i)=>'<div><span class="lgdot" style="background:'+groupColor(i)+'"></span>'+d+
+      ' <span class="muted">'+ (counts[i]||0) +'</span></div>').join("") +
+    '<div class="lgtitle">Rank (shape)</div>' +
+    RANK_ORDER.filter(r=>nodes.some(n=>n.rank===r)).map(r=>'<div>'+svg[r]+' '+r+
+      ' <span class="muted">'+nodes.filter(n=>n.rank===r).length+'</span></div>').join("");
+}
+
+/* filters */
+const filt = {theme:"", method:"", region:""};
+function fillFilters(){
+  const dims = [["fTheme","themes"],["fMethod","methods"],["fRegion","regions"]];
+  dims.forEach(([id, dim])=>{
+    const sel = document.getElementById(id); const cur = sel.value;
+    sel.innerHTML = '<option value="">All</option>';
+    const seen = new Set();
+    nodes.forEach(n => n[dim].forEach(t=>{ if(!seen.has(t.key)){ seen.add(t.key);
+      const o=document.createElement("option"); o.value=t.key; o.textContent=t.label; sel.appendChild(o); } }));
+    sel.value = cur;
+  });
+}
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  selected=null; hoverNode=null; zoom=1; panX=0; panY=0;
+  ["fTheme","fMethod","fRegion"].forEach(id=>document.getElementById(id).value="");
+  filt.theme=filt.method=filt.region="";
+  if (activeTab==="profile") renderProfilePanel(null);
+});
+
+/* view toggle */
+function setView(mode){
+  viewMode = mode; E = mode === "sim" ? MODEL.edges : MODEL.compEdges;
+  btnSim.className = "btn" + (mode==="sim" ? " on" : "");
+  btnComp.className = "btn" + (mode==="comp" ? " onC" : "");
+  selected = null; hoverNode = null; hoverEdge = null;
+  if (activeTab === "profile") renderProfilePanel(null);
+}
+btnSim.addEventListener("click", ()=>setView("sim"));
+btnComp.addEventListener("click", ()=>setView("comp"));
+
+/* canvas interactions */
+function toWorld(mx,my){ return [(mx-panX)/zoom,(my-panY)/zoom]; }
+function nodeAt(mx,my){ const [wx,wy]=toWorld(mx,my);
+  for(let i=nodes.length-1;i>=0;i--){ const n=nodes[i]; if(Math.hypot(n.x-wx,n.y-wy)<=nodeRadius(n)+4) return n; } return null; }
+function edgeAt(mx,my){ const [wx,wy]=toWorld(mx,my); let best=null, bd=6/zoom;
+  E.forEach(e=>{ const a=byId[e.a], b=byId[e.b];
+    const t=Math.max(0,Math.min(1,((wx-a.x)*(b.x-a.x)+(wy-a.y)*(b.y-a.y))/((b.x-a.x)**2+(b.y-a.y)**2||1)));
+    const d=Math.hypot(a.x+(b.x-a.x)*t-wx, a.y+(b.y-a.y)*t-wy);
+    if(d<bd){ bd=d; best=e; } }); return best; }
+canvas.addEventListener("mousedown",e=>{ const r=canvas.getBoundingClientRect(); const mx=e.clientX-r.left,my=e.clientY-r.top;
+  const n=nodeAt(mx,my); dragMoved=false; if(n) dragging=n; else panning={x:mx,y:my,px:panX,py:panY}; });
+canvas.addEventListener("mousemove",e=>{ const r=canvas.getBoundingClientRect(); const mx=e.clientX-r.left,my=e.clientY-r.top;
+  if(dragging){ const [wx,wy]=toWorld(mx,my); dragging.x=wx; dragging.y=wy; dragging.vx=0; dragging.vy=0; dragMoved=true; return; }
+  if(panning){ panX=panning.px+(mx-panning.x); panY=panning.py+(my-panning.y); return; }
+  hoverNode=nodeAt(mx,my); hoverEdge=hoverNode?null:edgeAt(mx,my);
+  canvas.style.cursor=hoverNode?"pointer":"grab";
+  if(hoverEdge){ tip.style.display="block"; tip.style.left=(mx+14)+"px"; tip.style.top=(my+10)+"px";
+    if(viewMode==="sim"){
+      tip.innerHTML=`<b>${hoverEdge.a} × ${hoverEdge.b}</b><br>Score ${hoverEdge.combined} (theme ${hoverEdge.wt} + method ${hoverEdge.wm} + region ${hoverEdge.wr}) · Theme Jaccard ${hoverEdge.jt.toFixed(2)}`+
+        (hoverEdge.shared_t.length?`<br>Shared themes: ${hoverEdge.shared_t.join(", ")}`:"")+
+        (hoverEdge.shared_m.length?`<br>Shared methods: ${hoverEdge.shared_m.join(", ")}`:"")+
+        (hoverEdge.shared_r.length?`<br>Shared regions: ${hoverEdge.shared_r.join(", ")}`:"");
+    } else {
+      tip.innerHTML=`<b>${hoverEdge.a} × ${hoverEdge.b}</b><br>Complementarity Index (CI) ${hoverEdge.ci} (theme overlap ${hoverEdge.wt} / method cross ${hoverEdge.mc} / region reach ${hoverEdge.rc})`+
+        `<br>${hoverEdge.a} unique themes: ${hoverEdge.a_themes.join(", ")||"none"}`+
+        `<br>${hoverEdge.b} unique themes: ${hoverEdge.b_themes.join(", ")||"none"}`+
+        `<br>${hoverEdge.a} methods supplied: ${hoverEdge.a_meth.join(", ")||"—"}`+
+        `<br>${hoverEdge.b} methods supplied: ${hoverEdge.b_meth.join(", ")||"—"}`;
+    }
+  } else tip.style.display="none"; });
+canvas.addEventListener("mouseup",()=>{ if(dragging&&!dragMoved){ selected=dragging; setTab("profile"); renderProfilePanel(selected); } dragging=null; panning=null; });
+canvas.addEventListener("wheel",e=>{ e.preventDefault(); const r=canvas.getBoundingClientRect();
+  const mx=e.clientX-r.left,my=e.clientY-r.top; const f=e.deltaY<0?1.1:0.9;
+  const nz=Math.max(0.4,Math.min(3,zoom*f));
+  panX=mx-(mx-panX)*(nz/zoom); panY=my-(my-panY)*(nz/zoom); zoom=nz; },{passive:false});
+
+/* ================= panel tabs ================= */
+function setTab(tab){
+  activeTab = tab;
+  document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on", b.dataset.tab===tab));
+  if (tab==="profile") renderProfilePanel(selected);
+  if (tab==="signature") renderSignaturePanel();
+  if (tab==="edit") renderEditPanel();
+}
+document.querySelectorAll("#tabs button").forEach(b=>b.addEventListener("click",()=>setTab(b.dataset.tab)));
+
+function connListHTML(n){
+  const comp = viewMode==="comp";
+  const conns = E.filter(e=>e.a===n.id||e.b===n.id)
+    .sort((a,b)=>comp?(b.ci-a.ci):(b.combined-a.combined))
+    .map(e=>({other:e.a===n.id?e.b:e.a, e}));
+  if (comp) return conns.map(c=>{
+    const give = c.e.a===n.id ? c.e.b_meth : c.e.a_meth;
+    const need = c.e.a===n.id ? c.e.a_themes : c.e.b_themes;
+    return `<div class="conn" data-id="${c.other}"><span class="w">CI ${c.e.ci} (theme ${c.e.wt} / method ${c.e.mc} / region ${c.e.rc})</span><b>${c.other}</b>
+     <small>Methods supplied: ${give.join(", ")||"—"}${need.length?` · Themes only this side covers: ${need.join(", ")}`:""}</small></div>`;
+  }).join("") || '<div class="empty">No complementary pair (CI ≥ 5, theme overlap ≤ 2)</div>';
+  return conns.map(c=>
+    `<div class="conn" data-id="${c.other}"><span class="w">Score ${c.e.combined} (${c.e.wt}/${c.e.wm}/${c.e.wr})</span><b>${c.other}</b>
+     <small>${c.e.shared_t.join(", ")||"(method/region fit)"}</small></div>`).join("") || '<div class="empty">None</div>';
+}
+function renderProfilePanel(n){
+  if (!n){ pbody.innerHTML = '<div class="empty">Click a node to view themes, methods and regions.<br><br>Hover an edge for the pair&rsquo;s fit scores.<br><br>Each member can keep their own topics and methods current in the <b>Edit My Profile</b> tab — the map recalculates for everyone.</div>'; return; }
+  pbody.innerHTML = `
+    <h2>${n.id}</h2>
+    <div class="rank">${n.rank} · Domain: ${n.domain}</div>
+    <div><h3>Themes</h3>${n.themes.map(t=>`<span class="tag ${t.w===2?'pri':''}">${t.label}${t.w===2?' ●':' ○'}</span>`).join("")}</div>
+    <div><h3>Methods</h3>${n.methods.map(t=>`<span class="tag meth ${t.w===2?'pri':''}">${t.label}${t.w===2?' ●':' ○'}</span>`).join("")}</div>
+    <div><h3>Regions</h3>${n.regions.map(t=>`<span class="tag reg ${t.w===2?'pri':''}">${t.label}${t.w===2?' ●':' ○'}</span>`).join("")}</div>
+    <div><h3>Research Interests</h3><div style="line-height:1.7">${n.interests}</div></div>
+    <h3>${viewMode==="comp"?"Complementary Matches":"Potential Collaborators"} (${E.filter(e=>e.a===n.id||e.b===n.id).length})</h3>${connListHTML(n)}`;
+  pbody.querySelectorAll(".conn").forEach(el=>el.addEventListener("click",()=>{
+    const t=byId[el.dataset.id]; if(t){ selected=t; renderProfilePanel(t); } }));
+}
+
+/* ================= signature topics tab ================= */
+function renderSignaturePanel(){
+  const pinned = (DB.signature && DB.signature.pinned) || [];
+  const sugg = suggestSignatures(MODEL);
+  const who = DB.signature && DB.signature.updated_by ? `<div class="muted" style="font-size:11px;margin-bottom:8px">Pinned list last edited by ${DB.signature.updated_by} · ${DB.signature.updated_at}</div>` : "";
+  const memberChecks = MODEL.nodes.map(n=>`<label style="margin-right:10px;font-size:12px"><input type="checkbox" class="sigmem" value="${n.id}"> ${n.id}</label>`).join("");
+  pbody.innerHTML = `
+    <h3 style="margin-top:0">Pinned signature topics (department)</h3>
+    ${who}
+    <div id="pinnedList">${pinned.map((s,i)=>`
+      <div class="sig"><button class="x" data-i="${i}" title="remove">✕</button><b>${esc(s.title)}</b>
+      <small>${esc(s.note||"")}${s.members&&s.members.length?`<br>Members: ${s.members.map(esc).join(", ")}`:""}</small></div>`).join("")
+      || '<div class="empty">No pinned topics yet.</div>'}</div>
+    <div class="sig" style="background:#fafafa">
+      <b style="font-size:12px">Pin a new topic</b>
+      <div class="edrow" style="margin-top:6px"><input type="text" id="sigTitle" class="grow" placeholder="Topic title, e.g. GBA cross-boundary governance"></div>
+      <div class="edrow"><input type="text" id="sigNote" class="grow" placeholder="One-line rationale (optional)"></div>
+      <div style="margin:4px 0 6px">${memberChecks}</div>
+      <button class="btn comp" id="sigAdd">Pin topic</button> <span class="savemsg" id="sigMsg"></span>
+    </div>
+    <h3>Auto-suggested (live — recomputed from current data)</h3>
+    ${sugg.map(s=>`<div class="sig"><b>${esc(s.title)}</b> <span class="tag" style="margin-left:4px">${s.type==="cluster"?"core cluster":"cross-domain bridge"}</span>
+      <small>${esc(s.note)}<br>Members: ${s.members.map(esc).join(", ")}</small></div>`).join("")}`;
+  pbody.querySelectorAll("#pinnedList .x").forEach(b=>b.addEventListener("click", async ()=>{
+    pinned.splice(+b.dataset.i, 1);
+    await saveSignature(pinned);
+  }));
+  document.getElementById("sigAdd").addEventListener("click", async ()=>{
+    const title = document.getElementById("sigTitle").value.trim();
+    if (!title) return;
+    const members = [...pbody.querySelectorAll(".sigmem:checked")].map(c=>c.value);
+    pinned.push({title, note:document.getElementById("sigNote").value.trim(), members});
+    document.getElementById("sigMsg").textContent = "saving…";
+    await saveSignature(pinned);
+  });
+}
+async function saveSignature(pinned){
+  if (MODE === "static"){
+    DB.signature = {pinned, updated_by: editWho || "department", updated_at: new Date().toLocaleString()};
+    localStorage.setItem("pa_hub_local_signature", JSON.stringify(DB.signature));
+    toast("Saved in this browser — download merged data.json to publish");
+    await loadData(true);
+    return;
+  }
+  const r = await fetch("/api/signature", {method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({pinned, who: editWho || "department", at: new Date().toLocaleString()})});
+  if ((await r.json()).ok){ toast("Signature topics saved"); await loadData(true); }
+}
+function esc(s){ return String(s||"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+/* ================= edit my profile tab ================= */
+let editWho = localStorage.getItem("pa_hub_who") || "";
+function renderEditPanel(){
+  const names = Object.keys(DB.faculty);
+  if (!editWho || !DB.faculty[editWho]) editWho = names[0];
+  pbody.innerHTML = `
+    <div class="edrow"><span>I am:</span><select id="edName" class="grow">${names.map(n=>`<option ${n===editWho?"selected":""}>${n}</option>`).join("")}</select></div>
+    <div id="edForm" class="muted" style="font-size:12px">loading…</div>
+    <div class="savebar">
+      <button class="btn primary" id="edSave">Save</button>
+      <button class="btn" id="edDownload" style="display:none">Download merged data.json</button>
+      <span class="savemsg" id="edMsg"></span>
+      <div style="margin-top:8px;font-size:11px" class="muted" id="edNote">
+        Weights: <b>● primary (2)</b> = main research identity; <b>○ secondary (1)</b> = active involvement.
+      </div>
+    </div>`;
+  if (MODE === "static"){
+    document.getElementById("edNote").innerHTML =
+      'Static (GitHub Pages) mode: edits are stored in this browser only. To share them, click ' +
+      '<b>Download merged data.json</b> and commit the file to the repo — everyone then sees the update.<br><br>' +
+      'Weights: <b>● primary (2)</b> = main research identity; <b>○ secondary (1)</b> = active involvement.';
+    document.getElementById("edDownload").style.display = "";
+    document.getElementById("edDownload").addEventListener("click", downloadMerged);
+  }
+  document.getElementById("edName").addEventListener("change", e=>{ editWho = e.target.value; localStorage.setItem("pa_hub_who", editWho); edDraft = freshDraft(); dirtyEdit = false; renderEditForm(); });
+  edDraft = freshDraft(); dirtyEdit = false;
+  renderEditForm();
+  document.getElementById("edSave").addEventListener("click", saveProfile);
+}
+let edDraft = null;
+function freshDraft(){
+  const f = DB.faculty[editWho];
+  return JSON.parse(JSON.stringify({themes:f.themes, methods:f.methods, regions:f.regions,
+    interests:f.interests||"", domain:f.domain, __new:{}}));
+}
+function labelFor(dimKey, k){
+  const dictName = dimKey; // themes/methods/regions
+  if (edDraft && edDraft.__new && edDraft.__new[dictName] && edDraft.__new[dictName][k]) return edDraft.__new[dictName][k];
+  return DB[dictName][k] || k;
+}
+function renderEditForm(){
+  const dims = [["themes","Themes","themes"],["methods","Methods","methods"],["regions","Regions","regions"]];
+  let html = `<div class="edrow"><span>Domain:</span><select id="edDomain" class="grow">${MODEL.domains.map(d=>`<option ${d===edDraft.domain?"selected":""}>${d}</option>`).join("")}</select></div>`;
+  dims.forEach(([key, label, dictName])=>{
+    html += `<h3>${label}</h3>`;
+    html += `<div id="ed_${key}">` + Object.entries(edDraft[key]).map(([k,w])=>edRowHTML(key, k, w)).join("") + `</div>`;
+    html += `<div class="edrow"><select id="add_${key}" class="grow"><option value="">＋ add ${label.toLowerCase().slice(0,-1)}…</option></select>
+      <button class="btn" data-add="${key}" data-dict="${dictName}">Add</button></div>`;
+  });
+  html += `<h3>Research Interests</h3><textarea id="edInterests" rows="3" style="width:100%">${esc(edDraft.interests)}</textarea>`;
+  document.getElementById("edForm").innerHTML = html;
+  document.getElementById("edForm").classList.remove("muted");
+  dims.forEach(([key,, dictName])=>{
+    const sel = document.getElementById("add_"+key);
+    const used = new Set(Object.keys(edDraft[key]));
+    Object.entries(DB[dictName]).filter(([k])=>!used.has(k)).forEach(([k,v])=>{
+      const o=document.createElement("option"); o.value=k; o.textContent=v; sel.appendChild(o); });
+    const o=document.createElement("option"); o.value="__new__"; o.textContent="＋ create new label…"; sel.appendChild(o);
+    sel.addEventListener("change", ()=>{
+      if (sel.value === "__new__"){
+        const label = prompt("New " + dictName.slice(0,-1) + " label:");
+        if (label && label.trim()){
+          const nk = nextKey(DB[dictName], dictName==="themes"?"T":dictName==="methods"?"M":"R");
+          edDraft.__new = edDraft.__new || {}; edDraft.__new[dictName] = edDraft.__new[dictName]||{};
+          edDraft.__new[dictName][nk] = label.trim();
+          addItem(key, nk, 2);
+        }
+        sel.value = "";
+      }
+    });
+  });
+  pbody.querySelectorAll("[data-add]").forEach(b=>b.addEventListener("click", ()=>{
+    const sel = document.getElementById("add_"+b.dataset.add);
+    if (sel.value) addItem(b.dataset.add, sel.value, 2);
+  }));
+  pbody.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click", ()=>{
+    delete edDraft[b.dataset.dim][b.dataset.del]; renderEditForm(); dirtyEdit = true;
+  }));
+  pbody.querySelectorAll("[data-wt]").forEach(sel=>sel.addEventListener("change", ()=>{
+    edDraft[sel.dataset.wt][sel.dataset.k] = +sel.value; dirtyEdit = true;
+  }));
+  document.getElementById("edInterests").addEventListener("input", e=>{ edDraft.interests = e.target.value; dirtyEdit = true; });
+  document.getElementById("edDomain").addEventListener("change", e=>{ edDraft.domain = e.target.value; dirtyEdit = true; });
+}
+function nextKey(dict, prefix){
+  let i = 1; while (dict[prefix+i]) i++;
+  return prefix + i;
+}
+function edRowHTML(dim, k, w){
+  const label = labelFor(dim, k);
+  return `<div class="edrow"><span class="grow">${esc(label)}</span>
+    <select data-wt="${dim}" data-k="${k}">
+      <option value="2" ${w===2?"selected":""}>● primary</option>
+      <option value="1" ${w===1?"selected":""}>○ secondary</option>
+    </select>
+    <button class="btn" data-del="${k}" data-dim="${dim}" title="remove">✕</button></div>`;
+}
+function addItem(dim, k, w){
+  edDraft[dim][k] = w; renderEditForm(); dirtyEdit = true;
+}
+async function saveProfile(){
+  const msg = document.getElementById("edMsg");
+  msg.textContent = "saving…";
+  const payload = {name: editWho, at: new Date().toLocaleString(),
+    profile: {themes: edDraft.themes, methods: edDraft.methods, regions: edDraft.regions,
+              interests: edDraft.interests, domain: edDraft.domain},
+    new_labels: edDraft.__new || {}};
+  if (MODE === "static"){
+    const profs = JSON.parse(localStorage.getItem("pa_hub_local_profiles") || "{}");
+    profs[editWho] = payload.profile;
+    localStorage.setItem("pa_hub_local_profiles", JSON.stringify(profs));
+    const labs = JSON.parse(localStorage.getItem("pa_hub_local_labels") || "{}");
+    for (const dim of ["themes","methods","regions"])
+      if (payload.new_labels[dim]){ labs[dim] = labs[dim]||{}; Object.assign(labs[dim], payload.new_labels[dim]); }
+    localStorage.setItem("pa_hub_local_labels", JSON.stringify(labs));
+    msg.textContent = "saved in this browser ✓";
+    dirtyEdit = false;
+    toast("Saved in this browser — download merged data.json to publish for everyone");
+    await loadData(true);
+    return;
+  }
+  const r = await fetch("/api/profile", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload)});
+  const j = await r.json();
+  if (j.ok){ msg.textContent = "saved ✓"; dirtyEdit = false; toast("Profile saved — map updated for everyone"); await loadData(true); }
+  else msg.textContent = "save failed: " + (j.error||"");
+}
+
+/* ================= toast / status / sync ================= */
+let toastTimer = null;
+let MODE = "live";   // "live" = server.py running; "static" = GitHub Pages / plain static hosting
+let baseText = "";   // last fetched base dataset (before local overlays)
+function toast(t){ const el=document.getElementById("toast"); el.textContent=t; el.style.display="block";
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.style.display="none", 2600); }
+async function fetchBaseText(){
+  try {
+    const r = await fetch("/api/data", {cache:"no-store"});
+    if (r.ok){ MODE = "live"; return await r.text(); }
+  } catch(e){}
+  MODE = "static";
+  const r2 = await fetch("data.json?ts=" + Date.now(), {cache:"no-store"});
+  if (!r2.ok) throw new Error("no data source");
+  return await r2.text();
+}
+function applyLocalOverlay(){
+  if (MODE !== "static") return;
+  const profs = JSON.parse(localStorage.getItem("pa_hub_local_profiles") || "{}");
+  Object.entries(profs).forEach(([n,p])=>{ if (DB.faculty[n]) DB.faculty[n] = {...DB.faculty[n], ...p}; });
+  const labs = JSON.parse(localStorage.getItem("pa_hub_local_labels") || "{}");
+  for (const dim of ["themes","methods","regions"])
+    if (labs[dim]) DB[dim] = {...DB[dim], ...labs[dim]};
+  const sig = localStorage.getItem("pa_hub_local_signature");
+  if (sig){ try { DB.signature = JSON.parse(sig); } catch(e){} }
+}
+function downloadMerged(){
+  const merged = JSON.parse(baseText || "{}");
+  const profs = JSON.parse(localStorage.getItem("pa_hub_local_profiles") || "{}");
+  Object.entries(profs).forEach(([n,p])=>{ if (merged.faculty && merged.faculty[n]) merged.faculty[n] = {...merged.faculty[n], ...p}; });
+  const labs = JSON.parse(localStorage.getItem("pa_hub_local_labels") || "{}");
+  for (const dim of ["themes","methods","regions"])
+    if (labs[dim]) merged[dim] = {...merged[dim], ...labs[dim]};
+  const sig = localStorage.getItem("pa_hub_local_signature");
+  if (sig){ try { merged.signature = JSON.parse(sig); } catch(e){} }
+  const blob = new Blob([JSON.stringify(merged, null, 1)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "data.json"; a.click();
+  URL.revokeObjectURL(a.href);
+  toast("Merged data.json downloaded — commit it to the repo to publish");
+}
+async function loadData(force){
+  const text = await fetchBaseText();
+  if (text === lastHash && !force) return;
+  if (dirtyEdit && !force){ toast("New data available — finish editing to see it"); return; }
+  lastHash = text; baseText = text;
+  DB = JSON.parse(text);
+  applyLocalOverlay();
+  document.getElementById("status").textContent =
+    (MODE === "live" ? "live mode · " : "static mode · edits stay in this browser until data.json is republished · ") +
+    Object.keys(DB.faculty).length + " faculty";
+  rebuildNetwork();
+  if (activeTab==="edit" && !dirtyEdit) renderEditPanel();
+}
+setInterval(()=>{ if (MODE === "live") loadData(false).catch(()=>{}); }, 8000);
+
+/* ================= boot ================= */
+(async ()=>{
+  try { await loadData(true); }
+  catch(e){ document.getElementById("status").textContent = "cannot load data — run server.py or keep data.json next to index.html"; }
+  renderProfilePanel(null);
+  loop();
+})();
+</script>
+</body>
+</html>

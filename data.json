@@ -1,0 +1,341 @@
+{
+ "_说明": "PA 方向 13 位教师三维度细化编码。编码依据：各人 DGPA 个人主页研究兴趣自述 + Selected Publications（2026-10-12 抓取）。2=主攻（近 5 年发表重心），1=次要。综合分 = 主题强度 + 0.5×方法契合 + 0.5×区域契合。",
+ "themes": {
+  "T01": "Chinese Polity & State Theory",
+  "T02": "Local Governance & Institutional Innovation in China",
+  "T03": "State Mobilization & Campaign-Style Governance in China",
+  "T04": "Rural Change & Rural Politics in China",
+  "T05": "Ethnic Politics & Borderland Governance",
+  "T06": "Comparative Regimes & Institutional Comparison",
+  "T07": "Fiscal Federalism & Local Public Finance",
+  "T08": "Tax Policy & Tax Incidence",
+  "T09": "Public Budgeting & R&D Funding",
+  "T10": "Social Security Systems",
+  "T11": "Welfare Attitudes & Distributive Preferences",
+  "T12": "Public Opinion & Political Attitudes",
+  "T13": "Immigration Policy",
+  "T14": "Health Policy & Healthcare Services",
+  "T15": "Mental Health Policy",
+  "T16": "Aging & Elderly Care Policy",
+  "T17": "Family Formation & Fertility Behavior",
+  "T18": "Social Stratification & Ethnic Inequality",
+  "T19": "Adolescent Health Risk & Prevention",
+  "T20": "Intergovernmental Collaboration & Regional Governance",
+  "T21": "Government Contracting & Service Outsourcing",
+  "T22": "Contractual Accountability & Regulatory Enforcement",
+  "T23": "Urban Governance & Urban Policy",
+  "T24": "Legislative Institutions & Legislative Politics",
+  "T25": "Policymaking & Bureaucratic Politics",
+  "T26": "Policy Narratives & Political Communication",
+  "T27": "E-Government & Digital Transparency",
+  "T28": "AI Administrative Responsibility & Algorithmic Governance",
+  "T29": "Digital Participation Platforms",
+  "T30": "Public Service Motivation & Organizational Behavior",
+  "T31": "Bureaucratic Behavior & Cadre Management",
+  "T32": "Civic Participation",
+  "T33": "Political Legitimacy & Civil Society",
+  "T34": "Government Innovation & Policy Diffusion",
+  "T35": "Program & Performance Evaluation"
+ },
+ "methods": {
+  "M1": "Surveys & Experiments",
+  "M2": "Econometrics & Causal Inference",
+  "M3": "Computational Text Analysis / ML",
+  "M4": "Social Network Analysis",
+  "M5": "Qualitative Fieldwork / Comparative Cases",
+  "M6": "Measurement & Psychometrics",
+  "M7": "Theory Building & Normative Analysis",
+  "M8": "Demography / Big-Data Evaluation"
+ },
+ "regions": {
+  "R1": "Mainland China",
+  "R2": "Macau",
+  "R3": "Hong Kong",
+  "R4": "United States",
+  "R5": "East Asia (Japan, Korea, etc.)",
+  "R6": "Europe",
+  "R7": "Cross-National Comparative",
+  "R8": "Global South"
+ },
+ "faculty": {
+  "Wei PAN": {
+   "rank": "Chair Professor",
+   "themes": {
+    "T01": 2,
+    "T04": 2,
+    "T05": 1,
+    "T06": 1
+   },
+   "methods": {
+    "M7": 2,
+    "M5": 2
+   },
+   "regions": {
+    "R1": 2,
+    "R7": 1
+   },
+   "interests": "Comparative politics; the Chinese polity; rural change in China; Chinese foreign policy; ethnic politics",
+   "sig": "Author of The Chinese Regime, The China Model, and Peasants and the Market; comparative politics theory and method",
+   "domain": "Chinese Politics & Governance"
+  },
+  "Yonghong WU": {
+   "rank": "Professor",
+   "themes": {
+    "T07": 2,
+    "T09": 2,
+    "T08": 1
+   },
+   "methods": {
+    "M2": 2,
+    "M8": 1
+   },
+   "regions": {
+    "R4": 2,
+    "R7": 1
+   },
+   "interests": "Public finance and budgeting; fiscal federalism; local taxation; R&D funding policy",
+   "sig": "America's Leaning Ivory Tower (Springer 2020); SALT deduction caps and municipal rainy-day funds",
+   "domain": "Public Finance & Budgeting"
+  },
+  "Tak-Wing NGO": {
+   "rank": "Professor",
+   "themes": {
+    "T06": 2,
+    "T05": 2,
+    "T02": 1,
+    "T03": 1
+   },
+   "methods": {
+    "M5": 2,
+    "M7": 1
+   },
+   "regions": {
+    "R1": 2,
+    "R2": 1,
+    "R7": 1
+   },
+   "interests": "State-led development; rent-seeking politics; institutional hollowing; shadow exchange and informal governance; borderland governance",
+   "sig": "Global Shadow Exchanges (CUP 2024); shadow trade governance on the China–Kazakhstan border; editor of China Information",
+   "domain": "Chinese Politics & Governance"
+  },
+  "Xiaojun YAN": {
+   "rank": "Professor",
+   "themes": {
+    "T02": 2,
+    "T03": 2,
+    "T01": 1,
+    "T06": 1
+   },
+   "methods": {
+    "M5": 2,
+    "M2": 1
+   },
+   "regions": {
+    "R1": 2,
+    "R3": 1
+   },
+   "interests": "Chinese politics; public administration; institutional innovation; local governance; state mobilization",
+   "sig": "Series of co-authored works (Governance, CPS, Political Studies); policy-discourse engineering and family-planning narratives",
+   "domain": "Chinese Politics & Governance"
+  },
+  "Bo WEN": {
+   "rank": "Associate Professor",
+   "themes": {
+    "T30": 2,
+    "T22": 2,
+    "T28": 2,
+    "T31": 1
+   },
+   "methods": {
+    "M1": 2,
+    "M6": 2,
+    "M2": 1
+   },
+   "regions": {
+    "R1": 2,
+    "R4": 1
+   },
+   "interests": "Public sector human resources; public service motivation (PSM); organizational behavior; regulatory governance; AI administrative responsibility",
+   "sig": "Two PAR articles (behavioral genetics & public administration); NSFC project ongoing; AI administrative accountability (PMR 2024)",
+   "domain": "Public Sector Organization & HRM"
+  },
+  "Kin Sun CHAN": {
+   "rank": "Assistant Professor",
+   "themes": {
+    "T10": 2,
+    "T35": 2,
+    "T14": 2,
+    "T15": 2,
+    "T16": 2
+   },
+   "methods": {
+    "M2": 2,
+    "M6": 2,
+    "M8": 1
+   },
+   "regions": {
+    "R2": 2,
+    "R3": 1,
+    "R1": 1
+   },
+   "interests": "Social policy analysis; program and performance evaluation; mental health and aging; Macau's social security system",
+   "sig": "20+ Macau SAR government-funded studies; social security, health and aging policy in Macau",
+   "domain": "Social Policy & Welfare"
+  },
+  "Bryan Chiew Siang HO": {
+   "rank": "Assistant Professor",
+   "themes": {
+    "T32": 2,
+    "T33": 2,
+    "T04": 2,
+    "T06": 1
+   },
+   "methods": {
+    "M5": 2,
+    "M7": 1
+   },
+   "regions": {
+    "R2": 2,
+    "R1": 1,
+    "R3": 1,
+    "R7": 1
+   },
+   "interests": "Governance and political legitimacy; civic participation; comparative administration; rural politics in China; Macau civil society",
+   "sig": "Co-author of Public Policies in Rural China; Macau national security legislation and civil society",
+   "domain": "Civic Participation & Governance Legitimacy"
+  },
+  "Jiying JIANG": {
+   "rank": "Assistant Professor",
+   "themes": {
+    "T24": 2,
+    "T25": 2,
+    "T26": 1,
+    "T22": 1
+   },
+   "methods": {
+    "M3": 2,
+    "M2": 1
+   },
+   "regions": {
+    "R1": 2,
+    "R2": 1
+   },
+   "interests": "Chinese policy formulation; legislative institutions and processes; law and regulation; automated text analysis",
+   "sig": "Drivers of bill revision at China's two sessions (JCC 2025); quantitative study of Macau legislative politics (with Chiba & Ieong, CQ 2025)",
+   "domain": "Policy Process & Political Communication"
+  },
+  "La LI": {
+   "rank": "Assistant Professor",
+   "themes": {
+    "T26": 2,
+    "T01": 2,
+    "T31": 1
+   },
+   "methods": {
+    "M1": 1,
+    "M5": 1,
+    "M3": 1
+   },
+   "regions": {
+    "R1": 2,
+    "R7": 1
+   },
+   "interests": "Policy narratives; political culture; governance and bureaucracy; state theory; political communication of overseas Chinese communities",
+   "sig": "Information-control paradox (Political Studies); co-authored series with Yan Xiaojun (Governance, CPS, Political Studies); family-planning policy discourse engineering",
+   "domain": "Policy Process & Political Communication"
+  },
+  "Hang QI": {
+   "rank": "Assistant Professor",
+   "themes": {
+    "T11": 2,
+    "T12": 2,
+    "T13": 2,
+    "T08": 1,
+    "T10": 1
+   },
+   "methods": {
+    "M1": 2,
+    "M2": 2
+   },
+   "regions": {
+    "R4": 2,
+    "R7": 2,
+    "R1": 1
+   },
+   "interests": "Social welfare policy; tax policy and burden; immigration policy; public opinion; distributive preferences",
+   "sig": "Public Opinion Quarterly, Policy Studies Journal, American Politics Research; ASPA/APPAM best-paper awards",
+   "domain": "Social Policy & Welfare"
+  },
+  "Man XU": {
+   "rank": "Assistant Professor",
+   "themes": {
+    "T17": 2,
+    "T18": 2,
+    "T14": 1,
+    "T19": 1
+   },
+   "methods": {
+    "M2": 2,
+    "M8": 2
+   },
+   "regions": {
+    "R4": 2,
+    "R1": 1
+   },
+   "interests": "Policy analysis; inequality and social stratification; family formation; economic demography; social determinants of health",
+   "sig": "Inequality & family-formation series (ILR Review, JSSR, Populations 2026, PRPR 2025); racial disparities in female incarceration; ethnic income inequality in China chapter (GS: An-MROcAAAAJ)",
+   "domain": "Social Policy & Welfare"
+  },
+  "Shuwen ZHANG": {
+   "rank": "Assistant Professor",
+   "themes": {
+    "T20": 2,
+    "T21": 2,
+    "T22": 2,
+    "T19": 1,
+    "T23": 1,
+    "T14": 1
+   },
+   "methods": {
+    "M4": 2,
+    "M2": 2,
+    "M3": 2
+   },
+   "regions": {
+    "R4": 2,
+    "R1": 2,
+    "R7": 1
+   },
+   "interests": "Collaborative governance and interlocal agreements; intergovernmental service contracts and market structure (asset specificity and lock-in); contractual accountability and enforcement; policy network dynamics (ERGM/TERGM/SAOM/stochastic block models); LLM/computational text analysis with large administrative datasets; public health service networks (American Indian/Alaska Native youth and the Chicago PON); intercity administrative cooperation in China (cross-province hukou services, 280+ cities)",
+   "sig": "Public Administration 2025 (contract design & network structure); PAR under review 'The Illusion of Choice' (full sample of 21,629 Iowa interlocal agreements, LLM extraction); BMC Public Health 2026 & J Ethn Subst Abuse 2026 (AI/AN adolescent peer networks, ERGMs); State & Local Government Review 2024 (accountability in collaborative service contracts); ASPA-SIAM 2027 proposal (hukou cooperation networks across 280+ Chinese cities)",
+   "domain": "Collaboration, Intergovernmental & Urban Governance"
+  },
+  "Boyuan ZHAO": {
+   "rank": "Assistant Professor",
+   "themes": {
+    "T27": 2,
+    "T29": 2,
+    "T23": 2,
+    "T28": 1,
+    "T34": 1
+   },
+   "methods": {
+    "M2": 2,
+    "M3": 1,
+    "M8": 1
+   },
+   "regions": {
+    "R4": 2,
+    "R1": 1
+   },
+   "interests": "E-governance; digital transparency; government innovation; urban policy; public participation platforms",
+   "sig": "Digital transparency & public participation (GIQ 2023); 311 data policy evaluation (PSJ 2025); ASPA digital governance emerging-scholar award",
+   "domain": "Digital Governance & AI"
+  }
+ },
+ "signature": {
+  "pinned": [],
+  "updated_by": "",
+  "updated_at": ""
+ }
+}
