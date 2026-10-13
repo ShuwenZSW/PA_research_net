@@ -34,7 +34,6 @@
   "T31": "Bureaucratic Behavior & Cadre Management",
   "T32": "Civic Participation",
   "T33": "Political Legitimacy & Civil Society",
-  "T34": "Government Innovation & Policy Diffusion",
   "T35": "Program & Performance Evaluation",
   "T36": "Government Innovation & Policy Diffusion"
  },
@@ -317,7 +316,7 @@
     "T29": 2,
     "T23": 2,
     "T28": 1,
-    "T34": 1
+    "T36": 1
    },
    "methods": {
     "M2": 2,
