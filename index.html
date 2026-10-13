@@ -469,6 +469,8 @@ function renderEditPanel(){
     <div id="edForm" class="muted" style="font-size:12px">loading…</div>
     <div class="savebar">
       <button class="btn primary" id="edSave">Save</button>
+      <button class="btn" id="edEmail">Send via email</button>
+      <button class="btn" id="edCopy">Copy message</button>
       <button class="btn" id="edDownload" style="display:none">Download merged data.json</button>
       <span class="savemsg" id="edMsg"></span>
       <div style="margin-top:8px;font-size:11px" class="muted" id="edNote">
@@ -487,6 +489,14 @@ function renderEditPanel(){
   edDraft = freshDraft(); dirtyEdit = false;
   renderEditForm();
   document.getElementById("edSave").addEventListener("click", saveProfile);
+  document.getElementById("edEmail").addEventListener("click", ()=>{
+    location.href = "mailto:"+FEEDBACK_TO+"?subject="+encodeURIComponent("PA Research Net — profile update from "+editWho)+"&body="+encodeURIComponent(edMessage());
+    document.getElementById("edMsg").textContent = "opening your email app…";
+  });
+  document.getElementById("edCopy").addEventListener("click", async ()=>{
+    try { await navigator.clipboard.writeText(edMessage()); toast("Message copied — paste it in WeChat or email"); }
+    catch(e){ toast("Copy failed — paste manually after selecting the text"); }
+  });
 }
 let edDraft = null;
 function freshDraft(){
@@ -584,6 +594,22 @@ async function saveProfile(){
   const j = await r.json();
   if (j.ok){ msg.textContent = "saved ✓"; dirtyEdit = false; toast("Profile saved — map updated for everyone"); await loadData(true); }
   else msg.textContent = "save failed: " + (j.error||"");
+}
+function edMessage(){
+  const dimName = {themes:"Themes", methods:"Methods", regions:"Regions"};
+  const wName = w => w===2 ? "primary" : "secondary";
+  let m = "Profile update for: " + editWho + "\nSent: " + new Date().toLocaleString() + "\n\n";
+  m += "Domain: " + edDraft.domain + "\n\n";
+  ["themes","methods","regions"].forEach(d=>{
+    m += dimName[d] + ":\n";
+    const entries = Object.entries(edDraft[d]).map(([k,w])=>"  - " + labelFor(d,k) + " (" + wName(w) + ")");
+    m += (entries.join("\n") || "  (none)") + "\n\n";
+  });
+  m += "Research interests:\n" + (edDraft.interests || "(none)") + "\n";
+  const nl = edDraft.__new || {};
+  const nlLines = ["themes","methods","regions"].flatMap(d=>Object.entries(nl[d]||{}).map(([k,l])=>"  - [" + d + "] " + k + " = \"" + l + "\""));
+  if (nlLines.length) m += "\nNew labels to add:\n" + nlLines.join("\n") + "\n";
+  return m;
 }
 
 /* ================= feedback tab ================= */
