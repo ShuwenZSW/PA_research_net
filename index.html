@@ -113,10 +113,6 @@
 </main>
 <script>
 /* ================= state ================= */
-const DOMAINS = ["Chinese Politics & Governance","Social Policy & Welfare",
-  "Collaboration, Intergovernmental & Urban Governance","Public Finance & Budgeting",
-  "Policy Process & Political Communication","Digital Governance & AI",
-  "Public Sector Organization & HRM","Civic Participation & Governance Legitimacy"];
 const DOMAIN_COLORS = ["#C00000","#1F6E43","#8B6BB8","#DD6B20","#2C7A7B","#2B6CB0","#B7791F","#97266D","#4D7C0F","#0E7490"];
 let DB = null;            // raw data from server
 let MODEL = null;         // computed network model
@@ -137,8 +133,8 @@ function dimOverlap(pa, pb, dim){
 }
 function computeModel(db){
   const names = Object.keys(db.faculty);
-  const domains = DOMAINS.slice();
-  names.forEach(n => { const d = db.faculty[n].domain; if (!domains.includes(d)) domains.push(d); });
+  const domains = [];
+  names.forEach(n => { const d = db.faculty[n].domain; if (d && !domains.includes(d)) domains.push(d); });
   const domIdx = Object.fromEntries(domains.map((d,i)=>[d,i]));
   const N = names.map(n => {
     const f = db.faculty[n];
@@ -485,6 +481,17 @@ function renderEditPanel(){
       'Weights: <b>● primary (2)</b> = main research identity; <b>○ secondary (1)</b> = active involvement.';
     document.getElementById("edDownload").style.display = "";
     document.getElementById("edDownload").addEventListener("click", downloadMerged);
+    const discard = document.createElement("button");
+    discard.className = "btn"; discard.textContent = "Discard my local draft";
+    discard.addEventListener("click", ()=>{
+      const profs = JSON.parse(localStorage.getItem("pa_hub_local_profiles") || "{}");
+      if (!profs[editWho]){ toast("No local draft to discard"); return; }
+      delete profs[editWho];
+      localStorage.setItem("pa_hub_local_profiles", JSON.stringify(profs));
+      toast("Local draft discarded — showing the published version");
+      loadData(true);
+    });
+    document.getElementById("edSave").after(discard);
   }
   document.getElementById("edName").addEventListener("change", e=>{ editWho = e.target.value; localStorage.setItem("pa_hub_who", editWho); edDraft = freshDraft(); dirtyEdit = false; renderEditForm(); });
   edDraft = freshDraft(); dirtyEdit = false;
@@ -686,7 +693,11 @@ async function fetchBaseText(){
 function applyLocalOverlay(){
   if (MODE !== "static") return;
   const profs = JSON.parse(localStorage.getItem("pa_hub_local_profiles") || "{}");
-  Object.entries(profs).forEach(([n,p])=>{ if (DB.faculty[n]) DB.faculty[n] = {...DB.faculty[n], ...p}; });
+  Object.entries(profs).forEach(([n,p])=>{
+    if (!DB.faculty[n]) return;
+    const {domain, ...rest} = p;   // domain is centrally managed — never let a stale local draft override it
+    DB.faculty[n] = {...DB.faculty[n], ...rest};
+  });
   const labs = JSON.parse(localStorage.getItem("pa_hub_local_labels") || "{}");
   for (const dim of ["themes","methods","regions"])
     if (labs[dim]) DB[dim] = {...DB[dim], ...labs[dim]};
