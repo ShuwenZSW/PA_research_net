@@ -179,8 +179,21 @@ function computeModel(db){
     .map(p=>({a:p.a,b:p.b,combined:p.combined,wt:p.wt,wm:p.wm,wr:p.wr,jt:p.jac,
       shared_t:p.shared_t.map(k=>db.themes[k]||k), shared_m:p.shared_m.map(k=>db.methods[k]||k),
       shared_r:p.shared_r.map(k=>db.regions[k]||k)}));
-  const compEdges = pairs.filter(p=>p.feasible && p.dt>=0.6 && p.ci>=7.5)
-    .map(p=>({a:p.a,b:p.b,ci:p.ci,dt:p.dt,ms:p.ms,rs:p.rs,mc:p.mc,rc:p.rc,
+  const strict = pairs.filter(p=>p.feasible && p.dt>=0.6 && p.ci>=7.5);
+  // anti-isolation guarantee: anyone without a strict complementary match
+  // keeps their single best feasible pair, flagged as a "nearest match"
+  const chosen = new Set(strict.map(p=>p.a+"|"+p.b));
+  const degree = {};
+  strict.forEach(p=>{ degree[p.a]=(degree[p.a]||0)+1; degree[p.b]=(degree[p.b]||0)+1; });
+  names.forEach(n=>{
+    if (degree[n]) return;
+    const mine = pairs.filter(p=>p.a===n||p.b===n);
+    const cand = mine.filter(p=>p.feasible && p.dt>=0.5).sort((x,y)=>y.ci-x.ci)[0]
+              || mine.sort((x,y)=>y.ci-x.ci)[0];
+    if (cand && !chosen.has(cand.a+"|"+cand.b)){ chosen.add(cand.a+"|"+cand.b); cand.near=true; strict.push(cand); }
+  });
+  const compEdges = strict
+    .map(p=>({a:p.a,b:p.b,ci:p.ci,dt:p.dt,ms:p.ms,rs:p.rs,mc:p.mc,rc:p.rc,near:!!p.near,
       a_themes:p.a_themes.map(k=>db.themes[k]||k), b_themes:p.b_themes.map(k=>db.themes[k]||k),
       a_meth:p.a_meth, b_meth:p.b_meth}));
   return {nodes:N, byId:Object.fromEntries(N.map(n=>[n.id,n])), pairs, edges, compEdges, domains, domIdx};
@@ -275,9 +288,9 @@ function draw(){
     const strength = viewMode==="sim" ? e.combined : e.ci;
     ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
     ctx.lineWidth=(0.7+strength*0.5)*(isHov?1.5:1);
-    ctx.setLineDash(viewMode==="comp" ? [7,4] : []);
-    ctx.strokeStyle=inF ? (viewMode==="sim"?"#1f4e79":"#7a5cb0") : (viewMode==="sim" ? (a.group===b.group?"#9ca3af":"#d9c6a5") : "#b9a8d8");
-    ctx.globalAlpha=dimAll?(inF?0.92:0.08):(isHov?0.95:Math.min(0.2+strength*0.08,0.85));
+    ctx.setLineDash(viewMode==="comp" ? (e.near?[3,5]:[7,4]) : []);
+    ctx.strokeStyle=inF ? (viewMode==="sim"?"#1f4e79":"#7a5cb0") : (viewMode==="sim" ? (a.group===b.group?"#9ca3af":"#d9c6a5") : (e.near?"#cfc3e3":"#b9a8d8"));
+    ctx.globalAlpha=dimAll?(inF?0.92:0.08):(isHov?0.95:(e.near?0.45:Math.min(0.2+strength*0.08,0.85)));
     ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha=1;
   });
   nodes.forEach(n=>{
@@ -366,7 +379,7 @@ function updateHover(mx,my){
         (hoverEdge.shared_m.length?`<br>Shared methods: ${hoverEdge.shared_m.join(", ")}`:"")+
         (hoverEdge.shared_r.length?`<br>Shared regions: ${hoverEdge.shared_r.join(", ")}`:"");
     } else {
-      tip.innerHTML=`<b>${hoverEdge.a} × ${hoverEdge.b}</b><br>Complementarity Index (CI) ${hoverEdge.ci} — theme distance ${hoverEdge.dt}, method overlap ${hoverEdge.ms}, region overlap ${hoverEdge.rs}`+
+      tip.innerHTML=`<b>${hoverEdge.a} × ${hoverEdge.b}</b><br>Complementarity Index (CI) ${hoverEdge.ci} — theme distance ${hoverEdge.dt}, method overlap ${hoverEdge.ms}, region overlap ${hoverEdge.rs}${hoverEdge.near?"<br><i>Nearest feasible match — just below the strict CI 7.5 bar</i>":""}`+
         `<br>${hoverEdge.a} unique themes: ${hoverEdge.a_themes.join(", ")||"none"}`+
         `<br>${hoverEdge.b} unique themes: ${hoverEdge.b_themes.join(", ")||"none"}`+
         `<br>${hoverEdge.a} methods supplied: ${hoverEdge.a_meth.join(", ")||"—"}`+
@@ -444,7 +457,7 @@ function connListHTML(n){
   if (comp) return conns.map(c=>{
     const give = c.e.a===n.id ? c.e.b_meth : c.e.a_meth;
     const need = c.e.a===n.id ? c.e.a_themes : c.e.b_themes;
-    return `<div class="conn" data-id="${c.other}"><span class="w">CI ${c.e.ci}</span><b>${c.other}</b>
+    return `<div class="conn" data-id="${c.other}"><span class="w">CI ${c.e.ci}${c.e.near?" · nearest match":""}</span><b>${c.other}</b>
      <small>Methods supplied: ${give.join(", ")||"—"}${need.length?` · Themes only this side covers: ${need.join(", ")}`:""}</small></div>`;
   }).join("") || '<div class="empty">No complementary pair (needs a shared primary method &amp; region, theme distance ≥ 0.6, CI ≥ 7.5)</div>';
   return conns.map(c=>
