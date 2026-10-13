@@ -7,7 +7,7 @@
 <style>
   :root { --bg:#f7f8fa; --panel:#fff; --ink:#1f2933; --muted:#6b7280; --line:#e5e7eb; --accent:#1f4e79; --comp:#7a5cb0; }
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif; background:var(--bg); color:var(--ink); height:100vh; overflow:hidden; }
+  body { font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif; background:var(--bg); color:var(--ink); height:100vh; height:100dvh; overflow:hidden; display:flex; flex-direction:column; }
   header { padding:9px 18px; background:var(--panel); border-bottom:1px solid var(--line); display:flex; align-items:baseline; gap:14px; }
   header h1 { font-size:16.5px; }
   header .sub { font-size:11.5px; color:var(--muted); }
@@ -17,15 +17,15 @@
   .btn { border:1px solid var(--line); background:#fff; border-radius:6px; padding:3px 12px; font-size:12px; cursor:pointer; }
   .btn.on  { border-color:var(--accent); background:var(--accent); color:#fff; }
   .btn.onC { border-color:var(--comp);  background:var(--comp);  color:#fff; }
-  main { display:flex; height:calc(100vh - 106px); }
+  main { display:flex; flex:1; min-height:0; }
   #stage { flex:1; position:relative; }
-  canvas { display:block; width:100%; height:100%; cursor:grab; }
+  canvas { display:block; width:100%; height:100%; cursor:grab; touch-action:none; }
   canvas:active { cursor:grabbing; }
-  #panel { width:380px; background:var(--panel); border-left:1px solid var(--line); display:flex; flex-direction:column; }
+  #panel { width:380px; background:var(--panel); border-left:1px solid var(--line); display:flex; flex-direction:column; min-width:0; }
   #tabs { display:flex; border-bottom:1px solid var(--line); }
   #tabs button { flex:1; padding:8px 4px; font-size:12.5px; background:#fafafa; border:none; border-right:1px solid var(--line); cursor:pointer; color:var(--muted); }
   #tabs button.on { background:#fff; color:var(--accent); font-weight:600; box-shadow:inset 0 -2px 0 var(--accent); }
-  #pbody { padding:14px; overflow-y:auto; font-size:13px; flex:1; }
+  #pbody { padding:14px; overflow-y:auto; overflow-x:hidden; font-size:13px; flex:1; min-width:0; }
   #pbody h2 { font-size:15px; margin-bottom:4px; }
   #pbody h3 { font-size:11.5px; color:var(--accent); letter-spacing:.4px; margin:11px 0 5px; }
   .rank { color:var(--muted); font-size:12px; margin-bottom:8px; }
@@ -44,6 +44,8 @@
   #hint { position:absolute; left:12px; bottom:10px; font-size:11px; color:var(--muted); background:rgba(255,255,255,.85); padding:4px 8px; border-radius:6px; }
   #legend { position:absolute; top:10px; right:12px; z-index:5; background:rgba(255,255,255,.93); border:1px solid var(--line); border-radius:8px; padding:9px 13px; font-size:11px; line-height:2; max-height:calc(100% - 56px); overflow-y:auto; box-shadow:0 1px 4px rgba(0,0,0,.08); }
   #legend .lgdot { width:10px; height:10px; border-radius:3px; display:inline-block; margin-right:7px; vertical-align:-1px; }
+  #legend .lgh { font-weight:600; font-size:10.5px; color:var(--muted); cursor:pointer; user-select:none; }
+  #legend.min > *:not(.lgh) { display:none; }
   #legend .lgtitle { color:var(--muted); font-size:10.5px; margin:4px 0 1px; }
   #legend .lgtitle:first-child { margin-top:0; }
   #legend svg { vertical-align:-2px; margin-right:6px; }
@@ -53,14 +55,26 @@
   .sig b { font-size:12.5px; }
   .sig small { color:var(--muted); display:block; margin-top:3px; line-height:1.5; }
   .sig .x { float:right; border:none; background:none; color:var(--muted); cursor:pointer; font-size:13px; }
-  .edrow { display:flex; align-items:center; gap:6px; margin-bottom:5px; font-size:12px; }
-  .edrow select, .edrow input[type=text], textarea { font-size:12px; padding:3px 6px; border:1px solid var(--line); border-radius:6px; background:#fff; }
-  .edrow .grow { flex:1; }
+  .edrow { display:flex; align-items:center; gap:6px; margin-bottom:5px; font-size:12px; min-width:0; }
+  .edrow select, .edrow input[type=text], textarea { font-size:12px; padding:3px 6px; border:1px solid var(--line); border-radius:6px; background:#fff; max-width:100%; }
+  .edrow select { min-width:0; }
+  .edrow .grow { flex:1; width:100%; }
   .savebar { position:sticky; bottom:0; background:var(--panel); padding:10px 0 4px; }
   .btn.primary { border-color:var(--accent); background:var(--accent); color:#fff; padding:5px 18px; }
   .btn.comp { border-color:var(--comp); background:var(--comp); color:#fff; padding:5px 18px; }
   .muted { color:var(--muted); }
   .savemsg { font-size:11.5px; margin-left:8px; }
+  @media (max-width: 768px) {
+    header h1 { font-size:14.5px; }
+    header .sub { display:none; }
+    main { flex-direction:column; overflow:hidden; }
+    #stage { flex:none; height:50vh; min-height:0; }
+    #panel { width:100%; flex:1; min-height:0; border-left:none; border-top:1px solid var(--line); }
+    #controls { flex-wrap:nowrap; overflow-x:auto; }
+    #legend { font-size:10.5px; padding:6px 10px; max-height:44vh; }
+    #hint { font-size:10px; max-width:55%; }
+    #pbody { padding:12px; min-height:0; }
+  }
 </style>
 </head>
 <body>
@@ -77,7 +91,7 @@
   <span class="muted">View:</span>
   <button id="viewSim" class="btn on">Similarity</button>
   <button id="viewComp" class="btn">Complementarity</button>
-  <span class="muted" style="font-size:11px">color = theme domain · shape = rank · purple dashed = complementary pairs</span>
+  <span class="muted" style="font-size:11px">color = theme domain · purple dashed = complementary pairs</span>
   <button id="resetBtn" class="btn" style="margin-left:auto">Reset</button>
 </div>
 <main>
@@ -86,12 +100,11 @@
     <div id="tip"></div>
     <div id="legend"></div>
     <div id="toast"></div>
-    <div id="hint">Drag nodes · Scroll to zoom · Click a node for details · Hover an edge for scores · Everyone's edits update this map in real time</div>
+    <div id="hint">Drag nodes · Scroll or pinch to zoom · Click / tap a node for details · Hover an edge for scores</div>
   </div>
   <div id="panel">
     <div id="tabs">
       <button data-tab="profile" class="on">Profile</button>
-      <button data-tab="signature">Signature Topics</button>
       <button data-tab="edit">Edit My Profile</button>
       <button data-tab="feedback">Feedback</button>
     </div>
@@ -105,8 +118,6 @@ const DOMAINS = ["Chinese Politics & Governance","Social Policy & Welfare",
   "Policy Process & Political Communication","Digital Governance & AI",
   "Public Sector Organization & HRM","Civic Participation & Governance Legitimacy"];
 const DOMAIN_COLORS = ["#C00000","#1F6E43","#8B6BB8","#DD6B20","#2C7A7B","#2B6CB0","#B7791F","#97266D","#4D7C0F","#0E7490"];
-const RANK_SHAPE = {"Chair Professor":"rect","Professor":"circle","Associate Professor":"square","Assistant Professor":"triangle"};
-const RANK_ORDER = ["Chair Professor","Professor","Associate Professor","Assistant Professor"];
 let DB = null;            // raw data from server
 let MODEL = null;         // computed network model
 let nodes = [], byId = {}, E = [];
@@ -167,32 +178,6 @@ function computeModel(db){
   return {nodes:N, byId:Object.fromEntries(N.map(n=>[n.id,n])), pairs, edges, compEdges, domains, domIdx};
 }
 
-/* ================= signature topics (auto, live) ================= */
-function suggestSignatures(M){
-  const sugg = [];
-  const clusters = {};
-  M.nodes.forEach(n => { (clusters[n.domain] = clusters[n.domain]||[]).push(n.id); });
-  Object.entries(clusters).forEach(([d, mem]) => {
-    if (mem.length >= 3) sugg.push({type:"cluster", title:d, members:mem,
-      note:"Core cluster — " + mem.length + " faculty share this theme domain."});
-  });
-  const bridges = {};
-  M.compEdges.forEach(e => {
-    const da = M.byId[e.a].domain, db = M.byId[e.b].domain;
-    if (da === db) return;
-    const k = [da, db].sort().join(" × ");
-    (bridges[k] = bridges[k] || []).push(e);
-  });
-  Object.entries(bridges).map(([k, es]) => ({k, score: es.reduce((s,e)=>s+e.ci,0), n: es.length,
-      top: es.slice().sort((a,b)=>b.ci-a.ci)[0]}))
-    .sort((a,b)=>b.score-a.score).slice(0,3).forEach(b => {
-      sugg.push({type:"bridge", title:b.k, members:[b.top.a, b.top.b],
-        note:b.n + " complementary pairs (total CI " + b.score.toFixed(1) + "). Top: " +
-             b.top.a + " × " + b.top.b + " (CI " + b.top.ci + ")."});
-    });
-  return sugg;
-}
-
 /* ================= network rendering ================= */
 const canvas = document.getElementById("net"), ctx = canvas.getContext("2d");
 const tip = document.getElementById("tip"), pbody = document.getElementById("pbody");
@@ -214,12 +199,11 @@ function rebuildNetwork(){
     const p = oldPos[n.id];
     return {...n, x: p ? p[0] : Math.random()*W, y: p ? p[1] : Math.random()*H, vx:0, vy:0};
   });
-  byId = MODEL.byId;
+  byId = Object.fromEntries(nodes.map(n => [n.id, n]));
   E = viewMode === "sim" ? MODEL.edges : MODEL.compEdges;
   applyGroupLayout();
   renderLegend(); fillFilters();
   if (selected) renderProfilePanel(selected);
-  if (activeTab === "signature") renderSignaturePanel();
 }
 function applyGroupLayout(){
   const gs = [...new Set(nodes.map(n=>n.group))].sort((a,b)=>a-b);
@@ -291,7 +275,7 @@ function draw(){
   nodes.forEach(n=>{
     const r=nodeRadius(n), ok=nodeMatch(n);
     const isF=focus&&(n===focus||neigh[n.id]);
-    drawShape(n.x,n.y,r,RANK_SHAPE[n.rank],groupColor(n.group),n===focus||n===hoverNode);
+    drawShape(n.x,n.y,r,"circle",groupColor(n.group),n===focus||n===hoverNode);
     if((dimAll&&!isF)||!ok){ ctx.beginPath(); ctx.arc(n.x,n.y,r+3,0,Math.PI*2); ctx.fillStyle="rgba(247,248,250,0.75)"; ctx.fill(); }
     if(ok&&!((dimAll)&&!isF)){
       ctx.font="bold 11px sans-serif"; ctx.fillStyle="#1f2933"; ctx.textAlign="center";
@@ -303,20 +287,22 @@ function draw(){
 function loop(){ tick(); draw(); requestAnimationFrame(loop); }
 
 function renderLegend(){
-  const svg = {
-    "Chair Professor":'<svg width="12" height="12"><rect x="1" y="1" width="10" height="10" rx="1.5" fill="#4b5563"/></svg>',
-    "Professor":'<svg width="12" height="12"><circle cx="6" cy="6" r="5.5" fill="#4b5563"/></svg>',
-    "Associate Professor":'<svg width="12" height="12"><rect x="1.5" y="1.5" width="9" height="9" fill="#4b5563"/></svg>',
-    "Assistant Professor":'<svg width="12" height="12"><polygon points="6,1 11,11 1,11" fill="#4b5563"/></svg>'};
   const counts = {}; nodes.forEach(n=>counts[n.group]=(counts[n.group]||0)+1);
-  document.getElementById("legend").innerHTML =
+  const lg = document.getElementById("legend");
+  lg.innerHTML = '<div class="lgh">Legend <span id="lgArrow">▾</span></div>' +
     '<div class="lgtitle">Theme domain (color)</div>' +
     MODEL.domains.map((d,i)=>'<div><span class="lgdot" style="background:'+groupColor(i)+'"></span>'+d+
-      ' <span class="muted">'+ (counts[i]||0) +'</span></div>').join("") +
-    '<div class="lgtitle">Rank (shape)</div>' +
-    RANK_ORDER.filter(r=>nodes.some(n=>n.rank===r)).map(r=>'<div>'+svg[r]+' '+r+
-      ' <span class="muted">'+nodes.filter(n=>n.rank===r).length+'</span></div>').join("");
+      ' <span class="muted">'+ (counts[i]||0) +'</span></div>').join("");
+  if (window.innerWidth < 768 && !lg.dataset.touched){ lg.classList.add("min"); }
+  document.getElementById("lgArrow").textContent = lg.classList.contains("min") ? "▸" : "▾";
 }
+document.getElementById("legend").addEventListener("click", ()=>{
+  const lg = document.getElementById("legend");
+  lg.dataset.touched = "1";
+  lg.classList.toggle("min");
+  const a = document.getElementById("lgArrow");
+  if (a) a.textContent = lg.classList.contains("min") ? "▸" : "▾";
+});
 
 /* filters */
 const filt = {theme:"", method:"", region:""};
@@ -350,7 +336,7 @@ function setView(mode){
 btnSim.addEventListener("click", ()=>setView("sim"));
 btnComp.addEventListener("click", ()=>setView("comp"));
 
-/* canvas interactions */
+/* canvas interactions — pointer events cover mouse + touch; two-finger pinch zooms */
 function toWorld(mx,my){ return [(mx-panX)/zoom,(my-panY)/zoom]; }
 function nodeAt(mx,my){ const [wx,wy]=toWorld(mx,my);
   for(let i=nodes.length-1;i>=0;i--){ const n=nodes[i]; if(Math.hypot(n.x-wx,n.y-wy)<=nodeRadius(n)+4) return n; } return null; }
@@ -359,11 +345,10 @@ function edgeAt(mx,my){ const [wx,wy]=toWorld(mx,my); let best=null, bd=6/zoom;
     const t=Math.max(0,Math.min(1,((wx-a.x)*(b.x-a.x)+(wy-a.y)*(b.y-a.y))/((b.x-a.x)**2+(b.y-a.y)**2||1)));
     const d=Math.hypot(a.x+(b.x-a.x)*t-wx, a.y+(b.y-a.y)*t-wy);
     if(d<bd){ bd=d; best=e; } }); return best; }
-canvas.addEventListener("mousedown",e=>{ const r=canvas.getBoundingClientRect(); const mx=e.clientX-r.left,my=e.clientY-r.top;
-  const n=nodeAt(mx,my); dragMoved=false; if(n) dragging=n; else panning={x:mx,y:my,px:panX,py:panY}; });
-canvas.addEventListener("mousemove",e=>{ const r=canvas.getBoundingClientRect(); const mx=e.clientX-r.left,my=e.clientY-r.top;
-  if(dragging){ const [wx,wy]=toWorld(mx,my); dragging.x=wx; dragging.y=wy; dragging.vx=0; dragging.vy=0; dragMoved=true; return; }
-  if(panning){ panX=panning.px+(mx-panning.x); panY=panning.py+(my-panning.y); return; }
+const pointers = new Map();
+let pinch = null;
+function canvasPos(e){ const r=canvas.getBoundingClientRect(); return [e.clientX-r.left, e.clientY-r.top]; }
+function updateHover(mx,my){
   hoverNode=nodeAt(mx,my); hoverEdge=hoverNode?null:edgeAt(mx,my);
   canvas.style.cursor=hoverNode?"pointer":"grab";
   if(hoverEdge){ tip.style.display="block"; tip.style.left=(mx+14)+"px"; tip.style.top=(my+10)+"px";
@@ -379,8 +364,55 @@ canvas.addEventListener("mousemove",e=>{ const r=canvas.getBoundingClientRect();
         `<br>${hoverEdge.a} methods supplied: ${hoverEdge.a_meth.join(", ")||"—"}`+
         `<br>${hoverEdge.b} methods supplied: ${hoverEdge.b_meth.join(", ")||"—"}`;
     }
-  } else tip.style.display="none"; });
-canvas.addEventListener("mouseup",()=>{ if(dragging&&!dragMoved){ selected=dragging; setTab("profile"); renderProfilePanel(selected); } dragging=null; panning=null; });
+  } else tip.style.display="none";
+}
+window.__pa = { get E(){ return E; }, get nodes(){ return nodes; }, get byId(){ return byId; }, get viewMode(){ return viewMode; }, get zoom(){ return zoom; }, get pan(){ return [panX,panY]; } };
+canvas.addEventListener("pointerdown", e=>{
+  try { canvas.setPointerCapture(e.pointerId); } catch(err){}
+  pointers.set(e.pointerId, {x:e.clientX, y:e.clientY});
+  if (pointers.size === 2){
+    const [p1,p2] = [...pointers.values()];
+    pinch = {d0: Math.hypot(p1.x-p2.x, p1.y-p2.y) || 1, zoom0: zoom, panX0: panX, panY0: panY,
+             mx:(p1.x+p2.x)/2 - canvas.getBoundingClientRect().left, my:(p1.y+p2.y)/2 - canvas.getBoundingClientRect().top};
+    dragging = null; panning = null;
+    return;
+  }
+  const [mx,my] = canvasPos(e);
+  const n = nodeAt(mx,my); dragMoved = false;
+  if (n) dragging = n; else panning = {x:mx, y:my, px:panX, py:panY};
+});
+canvas.addEventListener("pointermove", e=>{
+  if (!pointers.has(e.pointerId)){
+    if (e.pointerType === "mouse"){ const [mx,my]=canvasPos(e); updateHover(mx,my); }
+    return;
+  }
+  pointers.set(e.pointerId, {x:e.clientX, y:e.clientY});
+  if (pinch && pointers.size === 2){
+    const [p1,p2] = [...pointers.values()];
+    const d = Math.hypot(p1.x-p2.x, p1.y-p2.y);
+    const nz = Math.max(0.4, Math.min(3, pinch.zoom0 * d / pinch.d0));
+    panX = pinch.mx - (pinch.mx - pinch.panX0) * (nz / pinch.zoom0);
+    panY = pinch.my - (pinch.my - pinch.panY0) * (nz / pinch.zoom0);
+    zoom = nz;
+    return;
+  }
+  const [mx,my] = canvasPos(e);
+  if (dragging){ const [wx,wy]=toWorld(mx,my); dragging.x=wx; dragging.y=wy; dragging.vx=0; dragging.vy=0; dragMoved=true; return; }
+  if (panning){ panX=panning.px+(mx-panning.x); panY=panning.py+(my-panning.y); return; }
+  if (e.pointerType === "mouse") updateHover(mx,my);
+});
+function endPointer(e){
+  const wasTap = dragging && !dragMoved;
+  pointers.delete(e.pointerId);
+  if (pointers.size < 2) pinch = null;
+  if (pointers.size === 0){
+    if (wasTap){ selected = dragging; setTab("profile"); renderProfilePanel(selected); }
+    dragging = null; panning = null; dragMoved = false;
+    if (e.pointerType !== "mouse"){ hoverNode = null; hoverEdge = null; tip.style.display = "none"; }
+  }
+}
+canvas.addEventListener("pointerup", endPointer);
+canvas.addEventListener("pointercancel", e=>{ pointers.delete(e.pointerId); if (pointers.size<2) pinch=null; if (pointers.size===0){ dragging=null; panning=null; } });
 canvas.addEventListener("wheel",e=>{ e.preventDefault(); const r=canvas.getBoundingClientRect();
   const mx=e.clientX-r.left,my=e.clientY-r.top; const f=e.deltaY<0?1.1:0.9;
   const nz=Math.max(0.4,Math.min(3,zoom*f));
@@ -391,7 +423,6 @@ function setTab(tab){
   activeTab = tab;
   document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on", b.dataset.tab===tab));
   if (tab==="profile") renderProfilePanel(selected);
-  if (tab==="signature") renderSignaturePanel();
   if (tab==="edit") renderEditPanel();
   if (tab==="feedback") renderFeedbackPanel();
 }
@@ -416,7 +447,7 @@ function renderProfilePanel(n){
   if (!n){ pbody.innerHTML = '<div class="empty">Click a node to view themes, methods and regions.<br><br>Hover an edge for the pair&rsquo;s fit scores.<br><br>Each member can keep their own topics and methods current in the <b>Edit My Profile</b> tab — the map recalculates for everyone.</div>'; return; }
   pbody.innerHTML = `
     <h2>${n.id}</h2>
-    <div class="rank">${n.rank} · Domain: ${n.domain}</div>
+    <div class="rank">Domain: ${n.domain}</div>
     <div><h3>Themes</h3>${n.themes.map(t=>`<span class="tag ${t.w===2?'pri':''}">${t.label}${t.w===2?' ●':' ○'}</span>`).join("")}</div>
     <div><h3>Methods</h3>${n.methods.map(t=>`<span class="tag meth ${t.w===2?'pri':''}">${t.label}${t.w===2?' ●':' ○'}</span>`).join("")}</div>
     <div><h3>Regions</h3>${n.regions.map(t=>`<span class="tag reg ${t.w===2?'pri':''}">${t.label}${t.w===2?' ●':' ○'}</span>`).join("")}</div>
@@ -426,54 +457,6 @@ function renderProfilePanel(n){
     const t=byId[el.dataset.id]; if(t){ selected=t; renderProfilePanel(t); } }));
 }
 
-/* ================= signature topics tab ================= */
-function renderSignaturePanel(){
-  const pinned = (DB.signature && DB.signature.pinned) || [];
-  const sugg = suggestSignatures(MODEL);
-  const who = DB.signature && DB.signature.updated_by ? `<div class="muted" style="font-size:11px;margin-bottom:8px">Pinned list last edited by ${DB.signature.updated_by} · ${DB.signature.updated_at}</div>` : "";
-  const memberChecks = MODEL.nodes.map(n=>`<label style="margin-right:10px;font-size:12px"><input type="checkbox" class="sigmem" value="${n.id}"> ${n.id}</label>`).join("");
-  pbody.innerHTML = `
-    <h3 style="margin-top:0">Pinned signature topics (department)</h3>
-    ${who}
-    <div id="pinnedList">${pinned.map((s,i)=>`
-      <div class="sig"><button class="x" data-i="${i}" title="remove">✕</button><b>${esc(s.title)}</b>
-      <small>${esc(s.note||"")}${s.members&&s.members.length?`<br>Members: ${s.members.map(esc).join(", ")}`:""}</small></div>`).join("")
-      || '<div class="empty">No pinned topics yet.</div>'}</div>
-    <div class="sig" style="background:#fafafa">
-      <b style="font-size:12px">Pin a new topic</b>
-      <div class="edrow" style="margin-top:6px"><input type="text" id="sigTitle" class="grow" placeholder="Topic title, e.g. GBA cross-boundary governance"></div>
-      <div class="edrow"><input type="text" id="sigNote" class="grow" placeholder="One-line rationale (optional)"></div>
-      <div style="margin:4px 0 6px">${memberChecks}</div>
-      <button class="btn comp" id="sigAdd">Pin topic</button> <span class="savemsg" id="sigMsg"></span>
-    </div>
-    <h3>Auto-suggested (live — recomputed from current data)</h3>
-    ${sugg.map(s=>`<div class="sig"><b>${esc(s.title)}</b> <span class="tag" style="margin-left:4px">${s.type==="cluster"?"core cluster":"cross-domain bridge"}</span>
-      <small>${esc(s.note)}<br>Members: ${s.members.map(esc).join(", ")}</small></div>`).join("")}`;
-  pbody.querySelectorAll("#pinnedList .x").forEach(b=>b.addEventListener("click", async ()=>{
-    pinned.splice(+b.dataset.i, 1);
-    await saveSignature(pinned);
-  }));
-  document.getElementById("sigAdd").addEventListener("click", async ()=>{
-    const title = document.getElementById("sigTitle").value.trim();
-    if (!title) return;
-    const members = [...pbody.querySelectorAll(".sigmem:checked")].map(c=>c.value);
-    pinned.push({title, note:document.getElementById("sigNote").value.trim(), members});
-    document.getElementById("sigMsg").textContent = "saving…";
-    await saveSignature(pinned);
-  });
-}
-async function saveSignature(pinned){
-  if (MODE === "static"){
-    DB.signature = {pinned, updated_by: editWho || "department", updated_at: new Date().toLocaleString()};
-    localStorage.setItem("pa_hub_local_signature", JSON.stringify(DB.signature));
-    toast("Saved in this browser — download merged data.json to publish");
-    await loadData(true);
-    return;
-  }
-  const r = await fetch("/api/signature", {method:"POST", headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({pinned, who: editWho || "department", at: new Date().toLocaleString()})});
-  if ((await r.json()).ok){ toast("Signature topics saved"); await loadData(true); }
-}
 function esc(s){ return String(s||"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 
 /* ================= edit my profile tab ================= */
@@ -711,8 +694,6 @@ function applyLocalOverlay(){
   const labs = JSON.parse(localStorage.getItem("pa_hub_local_labels") || "{}");
   for (const dim of ["themes","methods","regions"])
     if (labs[dim]) DB[dim] = {...DB[dim], ...labs[dim]};
-  const sig = localStorage.getItem("pa_hub_local_signature");
-  if (sig){ try { DB.signature = JSON.parse(sig); } catch(e){} }
 }
 function downloadMerged(){
   const merged = JSON.parse(baseText || "{}");
@@ -721,8 +702,6 @@ function downloadMerged(){
   const labs = JSON.parse(localStorage.getItem("pa_hub_local_labels") || "{}");
   for (const dim of ["themes","methods","regions"])
     if (labs[dim]) merged[dim] = {...merged[dim], ...labs[dim]};
-  const sig = localStorage.getItem("pa_hub_local_signature");
-  if (sig){ try { merged.signature = JSON.parse(sig); } catch(e){} }
   const blob = new Blob([JSON.stringify(merged, null, 1)], {type:"application/json"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob); a.download = "data.json"; a.click();
