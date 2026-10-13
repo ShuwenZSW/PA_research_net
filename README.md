@@ -18,4 +18,4 @@ A shared, self-updating map of research themes, methods and regions across the 1
 
 ## Data
 
-`data.json` holds all profiles, the theme/method/region label sets, and pinned signature topics. Coding: 35 fine-grained themes / 8 methods / 8 regions; primary (●) vs secondary (○) weights. Source: faculty webpages (2026-10-12), cross-checked against Google Scholar profiles.
+`data.json` (PA version) and `dept/data.json` (department-wide version) hold all profiles and the theme/method/region label sets. Coding: 35 fine-grained themes (PA) / 48 (department-wide) / 8 methods / 8 regions; primary (●) vs secondary (○) weights. Source: faculty webpages (2026-10-12 / 2026-10-13), cross-checked against Google Scholar profiles.
