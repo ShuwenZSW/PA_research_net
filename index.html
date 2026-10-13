@@ -106,7 +106,7 @@
     <div id="tabs">
       <button data-tab="profile" class="on">Profile</button>
       <button data-tab="edit">Edit My Profile</button>
-      <button data-tab="feedback">Feedback</button>
+      <button data-tab="feedback">Site Feedback</button>
     </div>
     <div id="pbody"></div>
   </div>
@@ -613,20 +613,23 @@ function edMessage(){
   return m;
 }
 
-/* ================= feedback tab ================= */
+/* ================= site feedback tab ================= */
 const FEEDBACK_TO = "shuwenzhang@um.edu.mo";  // where feedback emails go — change this line if needed
-let fbChanges = [];
 function renderFeedbackPanel(){
   if (!editWho || !DB.faculty[editWho]) editWho = Object.keys(DB.faculty)[0];
-  fbChanges = [{dim:"themes", key:"", action:"set_primary"}];
   pbody.innerHTML = `
-    <div class="empty" style="margin-bottom:8px">Request changes to your profile here — no need to use the editor yourself. Requests go to the map maintainer for a batch update.</div>
+    <div class="empty" style="margin-bottom:8px">Comments about this website itself — wrong or outdated information (yours or a colleague's), ideas for new themes or features, or anything that looks broken. To adjust your own profile, use the <b>Edit My Profile</b> tab.</div>
     <div class="edrow"><span>I am:</span><select id="fbName" class="grow">${Object.keys(DB.faculty).map(n=>`<option ${n===editWho?"selected":""}>${n}</option>`).join("")}</select></div>
-    <h3>Proposed changes</h3>
-    <div id="fbRows"></div>
-    <button class="btn" id="fbAdd">＋ Add another change</button>
-    <h3>Anything else (new topics, corrections, ideas)</h3>
-    <textarea id="fbNote" rows="3" style="width:100%" placeholder="e.g. Please add “climate governance” as a new theme; my AI accountability paper is now accepted at PMR."></textarea>
+    <div class="edrow"><span>Type:</span><select id="fbType" class="grow">
+      <option>Correction — my own data</option>
+      <option>Correction — a colleague's data</option>
+      <option>New theme / method / region idea</option>
+      <option>Suggestion for the site</option>
+      <option>Something looks broken</option>
+      <option>Other</option>
+    </select></div>
+    <h3>Your message</h3>
+    <textarea id="fbNote" rows="5" style="width:100%" placeholder="e.g. Could “AI & Algorithmic Governance” be added as a theme? My collaboration with Man XU on GBA housing is also missing."></textarea>
     <h3>Preview</h3>
     <pre id="fbPreview" class="empty" style="white-space:pre-wrap;background:#f8fafc;border:1px solid var(--line);border-radius:8px;padding:8px;font-size:11.5px;line-height:1.6"></pre>
     <div class="savebar">
@@ -635,11 +638,11 @@ function renderFeedbackPanel(){
       ${MODE==="live"?'<button class="btn comp" id="fbDirect">Send directly</button>':""}
       <span class="savemsg" id="fbMsg"></span>
     </div>`;
-  document.getElementById("fbName").addEventListener("change", e=>{ editWho=e.target.value; localStorage.setItem("pa_hub_who",editWho); fbRenderRows(); });
-  document.getElementById("fbAdd").addEventListener("click", ()=>{ fbChanges.push({dim:"themes",key:"",action:"set_primary"}); fbRenderRows(); });
+  document.getElementById("fbName").addEventListener("change", e=>{ editWho=e.target.value; localStorage.setItem("pa_hub_who",editWho); fbPreview(); });
+  document.getElementById("fbType").addEventListener("change", fbPreview);
   document.getElementById("fbNote").addEventListener("input", fbPreview);
   document.getElementById("fbEmail").addEventListener("click", ()=>{
-    location.href = "mailto:"+FEEDBACK_TO+"?subject="+encodeURIComponent("PA Research Net — profile update from "+editWho)+"&body="+encodeURIComponent(fbMessage());
+    location.href = "mailto:"+FEEDBACK_TO+"?subject="+encodeURIComponent("PA Research Net — site feedback ("+document.getElementById("fbType").value+") from "+editWho)+"&body="+encodeURIComponent(fbMessage());
     document.getElementById("fbMsg").textContent = "opening your email app…";
   });
   document.getElementById("fbCopy").addEventListener("click", async ()=>{
@@ -650,50 +653,16 @@ function renderFeedbackPanel(){
   if (dbtn) dbtn.addEventListener("click", async ()=>{
     const r = await fetch("/api/feedback",{method:"POST",headers:{"Content-Type":"application/json"},
       body: JSON.stringify({who: editWho, at: new Date().toLocaleString(),
-        changes: fbChanges.filter(c=>c.key), note: document.getElementById("fbNote").value.trim()})});
+        type: document.getElementById("fbType").value, note: document.getElementById("fbNote").value.trim()})});
     if ((await r.json()).ok){ toast("Feedback sent — thank you"); document.getElementById("fbMsg").textContent="sent ✓"; }
   });
-  fbRenderRows();
-}
-function fbRenderRows(){
-  const dimNames = {themes:"Theme", methods:"Method", regions:"Region"};
-  document.getElementById("fbRows").innerHTML = fbChanges.map((c,i)=>`
-    <div class="edrow">
-      <span class="muted">${i+1}.</span>
-      <select data-fb="${i}" data-part="dim">${Object.entries(dimNames).map(([k,v])=>`<option value="${k}" ${c.dim===k?"selected":""}>${v}</option>`).join("")}</select>
-      <select data-fb="${i}" data-part="key" class="grow"><option value="">choose…</option>${Object.entries(DB[c.dim]).map(([k,l])=>{
-        const cur = DB.faculty[editWho][c.dim] ? DB.faculty[editWho][c.dim][k] : 0;
-        const tag = cur===2 ? " (currently primary)" : cur===1 ? " (currently secondary)" : "";
-        return `<option value="${k}" ${c.key===k?"selected":""}>${esc(l+tag)}</option>`;}).join("")}</select>
-      <select data-fb="${i}" data-part="action">
-        <option value="set_primary" ${c.action==="set_primary"?"selected":""}>set ● primary</option>
-        <option value="set_secondary" ${c.action==="set_secondary"?"selected":""}>set ○ secondary</option>
-        <option value="remove" ${c.action==="remove"?"selected":""}>remove</option>
-      </select>
-      <button class="btn" data-fbdel="${i}" title="remove">✕</button>
-    </div>`).join("");
-  pbody.querySelectorAll("[data-fb]").forEach(el=>el.addEventListener("change", ()=>{
-    const i=+el.dataset.fb; fbChanges[i][el.dataset.part] = el.value;
-    if (el.dataset.part==="dim") fbChanges[i].key = "";
-    fbRenderRows();
-  }));
-  pbody.querySelectorAll("[data-fbdel]").forEach(b=>b.addEventListener("click", ()=>{
-    fbChanges.splice(+b.dataset.fbdel,1); fbRenderRows();
-  }));
   fbPreview();
 }
 function fbMessage(){
-  const dimNames={themes:"theme",methods:"method",regions:"region"};
-  const actNames={set_primary:"set as PRIMARY (●)",set_secondary:"set as SECONDARY (○)",remove:"REMOVE"};
-  const lines = fbChanges.filter(c=>c.key).map((c,i)=>{
-    const cur = DB.faculty[editWho][c.dim] ? DB.faculty[editWho][c.dim][c.key] : 0;
-    const curTxt = cur===2?"currently primary":cur===1?"currently secondary":"not in my profile";
-    return (i+1)+". ["+dimNames[c.dim]+"] "+(DB[c.dim][c.key]||c.key)+" → "+actNames[c.action]+"  ("+curTxt+")";
-  });
+  const type = (document.getElementById("fbType")||{value:""}).value;
   const noteEl = document.getElementById("fbNote");
   const note = noteEl ? noteEl.value.trim() : "";
-  return "[PA Research Net — profile feedback]\nFrom: "+editWho+"\n\nPROPOSED CHANGES:\n"+
-    (lines.length?lines.join("\n"):"(none)") + (note ? "\n\nNOTE:\n"+note : "") +
+  return "[PA Research Net — site feedback]\nFrom: "+editWho+"\nType: "+type+"\n\nMESSAGE:\n"+(note||"(empty)")+
     "\n\n— sent from https://shuwenzsw.github.io/PA_research_net/";
 }
 function fbPreview(){ const el=document.getElementById("fbPreview"); if (el) el.textContent = fbMessage(); }
