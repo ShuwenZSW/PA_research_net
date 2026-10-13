@@ -2,13 +2,13 @@
 
 A shared, self-updating map of research themes, methods and regions across the 13 PA faculty — built to make collaboration opportunities visible.
 
-**Open the app:** https://shuwenzsw.github.io/PA_research_net/
+**Open the app (PA, 13 faculty):** https://shuwenzsw.github.io/PA_research_net/
+**Open the app (department-wide, 21 faculty):** https://shuwenzsw.github.io/PA_research_net/dept/
 
 ## How it works
 
 - **Similarity view** — who shares research ground with whom (theme / method / region, weighted).
 - **Complementarity view** — pairs whose topics barely overlap but whose methods and regions complement each other (Complementarity Index, CI ≥ 5).
-- **Signature Topics tab** — department-pinned topics plus suggestions recomputed live from the current data.
 - **Edit My Profile tab** — every member keeps their own topics, methods, regions and interests current.
 
 ## Two modes
