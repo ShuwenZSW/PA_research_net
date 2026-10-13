@@ -144,21 +144,33 @@ function computeModel(db){
       regions:Object.entries(f.regions||{}).map(([k,w])=>({key:k,label:db.regions[k]||k,w})) };
   });
   const pairs = [];
+  const wJaccard = (fa,fb,dim)=>{ let inter=0, uni=0;
+    const keys = new Set([...Object.keys(fa[dim]),...Object.keys(fb[dim])]);
+    keys.forEach(k=>{ const wa=fa[dim][k]||0, wb=fb[dim][k]||0; inter+=Math.min(wa,wb); uni+=Math.max(wa,wb); });
+    return uni ? inter/uni : 0; };
+  const sharePrimary = (fa,fb,dim)=>{ const pa=primKeys(fa,dim), pb=primKeys(fb,dim);
+    return [...pa].some(k=>pb.has(k)); };
   for (let i=0;i<names.length;i++) for (let j=i+1;j<names.length;j++){
     const a=names[i], b=names[j], fa=db.faculty[a], fb=db.faculty[b];
     const [wt,st] = dimOverlap(fa,fb,"themes"), [wm,sm]=dimOverlap(fa,fb,"methods"), [wr,sr]=dimOverlap(fa,fb,"regions");
     const combined = wt + 0.5*wm + 0.5*wr;
     const ta=primKeys(fa,"themes"), tb=primKeys(fb,"themes");
-    const div = [...ta].filter(x=>!tb.has(x)).length + [...tb].filter(x=>!ta.has(x)).length;
+    // Complementarity Index: bounded, normalized terms
+    //  dt = thematic distance (1 - weighted Jaccard over all themes)
+    //  ms/rs = method / region synergy (shared weighted overlap relative to the smaller profile)
+    //  feasible = the pair shares at least one PRIMARY method AND one PRIMARY region,
+    //             i.e. they have a common methodological language and empirical terrain
+    const dt  = Math.round((1 - wJaccard(fa,fb,"themes"))*100)/100;
+    const ms  = Math.round(wJaccard(fa,fb,"methods")*100)/100;
+    const rs  = Math.round(wJaccard(fa,fb,"regions")*100)/100;
+    const feasible = sharePrimary(fa,fb,"methods") && sharePrimary(fa,fb,"regions");
+    const ci = Math.round((2*dt + 1.0*ms + 0.75*rs)/3.75*100)/10;
     const ma=primKeys(fa,"methods"), mb=primKeys(fb,"methods");
-    const mc = Math.min([...ma].filter(x=>!mb.has(x)).length + [...mb].filter(x=>!ma.has(x)).length, 4);
     const ra=primKeys(fa,"regions"), rb=primKeys(fb,"regions");
-    const rc = Math.min([...ra].filter(x=>!rb.has(x)).length + [...rb].filter(x=>!ra.has(x)).length, 2);
-    const ci = Math.round((0.5*div + 1.0*mc + 0.75*rc)*10)/10;
     const un = new Set([...st,...sm,...sr]);
     let jac = 0; const u = new Set([...Object.keys(fa.themes),...Object.keys(fb.themes)]);
     if (u.size) jac = st.length / u.size;
-    pairs.push({a,b,wt,wm,wr,combined,ci,jac,mc,rc,shared_t:st,shared_m:sm,shared_r:sr,
+    pairs.push({a,b,wt,wm,wr,combined,ci,dt,ms,rs,feasible,jac,mc:ms,rc:rs,shared_t:st,shared_m:sm,shared_r:sr,
       a_themes:[...ta].filter(x=>!tb.has(x)), b_themes:[...tb].filter(x=>!ta.has(x)),
       a_meth:[...ma].filter(x=>!mb.has(x)).map(k=>db.methods[k]||k),
       b_meth:[...mb].filter(x=>!ma.has(x)).map(k=>db.methods[k]||k)});
@@ -167,8 +179,8 @@ function computeModel(db){
     .map(p=>({a:p.a,b:p.b,combined:p.combined,wt:p.wt,wm:p.wm,wr:p.wr,jt:p.jac,
       shared_t:p.shared_t.map(k=>db.themes[k]||k), shared_m:p.shared_m.map(k=>db.methods[k]||k),
       shared_r:p.shared_r.map(k=>db.regions[k]||k)}));
-  const compEdges = pairs.filter(p=>p.ci>=5 && p.wt<=2)
-    .map(p=>({a:p.a,b:p.b,ci:p.ci,wt:p.wt,mc:p.mc,rc:p.rc,
+  const compEdges = pairs.filter(p=>p.feasible && p.dt>=0.6 && p.ci>=7.5)
+    .map(p=>({a:p.a,b:p.b,ci:p.ci,dt:p.dt,ms:p.ms,rs:p.rs,mc:p.mc,rc:p.rc,
       a_themes:p.a_themes.map(k=>db.themes[k]||k), b_themes:p.b_themes.map(k=>db.themes[k]||k),
       a_meth:p.a_meth, b_meth:p.b_meth}));
   return {nodes:N, byId:Object.fromEntries(N.map(n=>[n.id,n])), pairs, edges, compEdges, domains, domIdx};
@@ -354,7 +366,7 @@ function updateHover(mx,my){
         (hoverEdge.shared_m.length?`<br>Shared methods: ${hoverEdge.shared_m.join(", ")}`:"")+
         (hoverEdge.shared_r.length?`<br>Shared regions: ${hoverEdge.shared_r.join(", ")}`:"");
     } else {
-      tip.innerHTML=`<b>${hoverEdge.a} × ${hoverEdge.b}</b><br>Complementarity Index (CI) ${hoverEdge.ci} (theme overlap ${hoverEdge.wt} / method cross ${hoverEdge.mc} / region reach ${hoverEdge.rc})`+
+      tip.innerHTML=`<b>${hoverEdge.a} × ${hoverEdge.b}</b><br>Complementarity Index (CI) ${hoverEdge.ci} — theme distance ${hoverEdge.dt}, method overlap ${hoverEdge.ms}, region overlap ${hoverEdge.rs}`+
         `<br>${hoverEdge.a} unique themes: ${hoverEdge.a_themes.join(", ")||"none"}`+
         `<br>${hoverEdge.b} unique themes: ${hoverEdge.b_themes.join(", ")||"none"}`+
         `<br>${hoverEdge.a} methods supplied: ${hoverEdge.a_meth.join(", ")||"—"}`+
@@ -432,9 +444,9 @@ function connListHTML(n){
   if (comp) return conns.map(c=>{
     const give = c.e.a===n.id ? c.e.b_meth : c.e.a_meth;
     const need = c.e.a===n.id ? c.e.a_themes : c.e.b_themes;
-    return `<div class="conn" data-id="${c.other}"><span class="w">CI ${c.e.ci} (theme ${c.e.wt} / method ${c.e.mc} / region ${c.e.rc})</span><b>${c.other}</b>
+    return `<div class="conn" data-id="${c.other}"><span class="w">CI ${c.e.ci}</span><b>${c.other}</b>
      <small>Methods supplied: ${give.join(", ")||"—"}${need.length?` · Themes only this side covers: ${need.join(", ")}`:""}</small></div>`;
-  }).join("") || '<div class="empty">No complementary pair (CI ≥ 5, theme overlap ≤ 2)</div>';
+  }).join("") || '<div class="empty">No complementary pair (needs a shared primary method &amp; region, theme distance ≥ 0.6, CI ≥ 7.5)</div>';
   return conns.map(c=>
     `<div class="conn" data-id="${c.other}"><span class="w">Score ${c.e.combined} (${c.e.wt}/${c.e.wm}/${c.e.wr})</span><b>${c.other}</b>
      <small>${c.e.shared_t.join(", ")||"(method/region fit)"}</small></div>`).join("") || '<div class="empty">None</div>';

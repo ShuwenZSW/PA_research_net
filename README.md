@@ -9,7 +9,7 @@ A shared, self-updating map of research themes, methods and regions across the 1
 ## How it works
 
 - **Similarity view** — who shares research ground with whom (theme / method / region, weighted).
-- **Complementarity view** — pairs whose topics barely overlap but whose methods and regions complement each other (Complementarity Index, CI ≥ 5).
+- **Complementarity view** — pairs with genuinely different topics who still share a primary method and a primary region (so collaboration is realistic). Complementarity Index (CI, 0–10) = 2×theme distance + method overlap + 0.75×region overlap, normalized; shown only when CI ≥ 7.5 and theme distance ≥ 0.6.
 - **Edit My Profile tab** — every member keeps their own topics, methods, regions and interests current.
 
 ## Two modes
