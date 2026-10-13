@@ -3,7 +3,8 @@
 A shared, self-updating map of research themes, methods and regions across the 13 PA faculty — built to make collaboration opportunities visible.
 
 **Open the app (PA, 13 faculty):** https://shuwenzsw.github.io/PA_research_net/
-**Open the app (department-wide, 21 faculty):** https://shuwenzsw.github.io/PA_research_net/dept/
+
+*The department-wide version (22 faculty) lives in a separate repository: https://github.com/ShuwenZSW/DGPA_Research_Net_all*
 
 ## How it works
 
