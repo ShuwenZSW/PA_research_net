@@ -444,7 +444,7 @@ function connListHTML(n){
      <small>${c.e.shared_t.join(", ")||"(method/region fit)"}</small></div>`).join("") || '<div class="empty">None</div>';
 }
 function renderProfilePanel(n){
-  if (!n){ pbody.innerHTML = '<div class="empty">Click a node to view themes, methods and regions.<br><br>Hover an edge for the pair&rsquo;s fit scores.<br><br>Each member can keep their own topics and methods current in the <b>Edit My Profile</b> tab — the map recalculates for everyone.</div>'; return; }
+  if (!n){ pbody.innerHTML = '<div class="empty">Click a node to view themes, methods and regions.<br><br>Hover an edge for the pair&rsquo;s fit scores.<br><br>Each member can review and adjust their own topics in the <b>Edit My Profile</b> tab, then send the changes to the map maintainer — everyone sees the update after the shared data is republished.</div>'; return; }
   pbody.innerHTML = `
     <h2>${n.id}</h2>
     <div class="rank">Domain: ${n.domain}</div>
@@ -478,9 +478,10 @@ function renderEditPanel(){
       </div>
     </div>`;
   if (MODE === "static"){
+    document.getElementById("edSave").textContent = "Save (local demo only)";
     document.getElementById("edNote").innerHTML =
-      'Static (GitHub Pages) mode: edits are stored in this browser only. To share them, click ' +
-      '<b>Download merged data.json</b> and commit the file to the repo — everyone then sees the update.<br><br>' +
+      '<b style="color:#b45309">How sharing works:</b> <b>Save</b> only changes what <b>you</b> see on <b>this device</b> — a local preview, nothing else. ' +
+      'To make your changes visible to everyone, use <b>Send via email</b> or <b>Copy message</b> below — the request goes to the map maintainer, who updates the shared map for all.<br><br>' +
       'Weights: <b>● primary (2)</b> = main research identity; <b>○ secondary (1)</b> = active involvement.';
     document.getElementById("edDownload").style.display = "";
     document.getElementById("edDownload").addEventListener("click", downloadMerged);
@@ -584,9 +585,9 @@ async function saveProfile(){
     for (const dim of ["themes","methods","regions"])
       if (payload.new_labels[dim]){ labs[dim] = labs[dim]||{}; Object.assign(labs[dim], payload.new_labels[dim]); }
     localStorage.setItem("pa_hub_local_labels", JSON.stringify(labs));
-    msg.textContent = "saved in this browser ✓";
+    msg.textContent = "saved locally — only you can see it on this device ✓";
     dirtyEdit = false;
-    toast("Saved in this browser — download merged data.json to publish for everyone");
+    toast("Local preview saved — only you see it on this device. Use Send via email to share it");
     await loadData(true);
     return;
   }
