@@ -35,7 +35,8 @@
   "T32": "Civic Participation",
   "T33": "Political Legitimacy & Civil Society",
   "T34": "Government Innovation & Policy Diffusion",
-  "T35": "Program & Performance Evaluation"
+  "T35": "Program & Performance Evaluation",
+  "T36": "Policy Diffusion"
  },
  "methods": {
   "M1": "Surveys & Experiments",
@@ -293,7 +294,8 @@
     "T21": 2,
     "T22": 2,
     "T19": 1,
-    "T23": 2
+    "T23": 2,
+    "T36": 2
    },
    "methods": {
     "M4": 2,
