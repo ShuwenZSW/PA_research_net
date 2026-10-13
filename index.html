@@ -9,12 +9,12 @@
   * { box-sizing:border-box; margin:0; padding:0; }
   body { font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif; background:var(--bg); color:var(--ink); height:100vh; height:100dvh; overflow:hidden; display:flex; flex-direction:column; }
   header { padding:9px 18px; background:var(--panel); border-bottom:1px solid var(--line); display:flex; align-items:baseline; gap:14px; }
-  header h1 { font-size:16.5px; }
-  header .sub { font-size:11.5px; color:var(--muted); }
-  header .status { margin-left:auto; font-size:11px; color:var(--muted); }
-  #controls { display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; padding:7px 18px; background:var(--panel); border-bottom:1px solid var(--line); font-size:12px; }
-  #controls select { font-size:12px; padding:2px 6px; border:1px solid var(--line); border-radius:6px; background:#fff; }
-  .btn { border:1px solid var(--line); background:#fff; border-radius:6px; padding:3px 12px; font-size:12px; cursor:pointer; }
+  header h1 { font-size:18px; }
+  header .sub { font-size:13px; color:var(--muted); }
+  header .status { margin-left:auto; font-size:12.5px; color:var(--muted); }
+  #controls { display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; padding:7px 18px; background:var(--panel); border-bottom:1px solid var(--line); font-size:13.5px; }
+  #controls select { font-size:13.5px; padding:2px 6px; border:1px solid var(--line); border-radius:6px; background:#fff; }
+  .btn { border:1px solid var(--line); background:#fff; border-radius:6px; padding:3px 12px; font-size:13.5px; cursor:pointer; }
   .btn.on  { border-color:var(--accent); background:var(--accent); color:#fff; }
   .btn.onC { border-color:var(--comp);  background:var(--comp);  color:#fff; }
   main { display:flex; flex:1; min-height:0; }
@@ -23,13 +23,13 @@
   canvas:active { cursor:grabbing; }
   #panel { width:380px; background:var(--panel); border-left:1px solid var(--line); display:flex; flex-direction:column; min-width:0; }
   #tabs { display:flex; border-bottom:1px solid var(--line); }
-  #tabs button { flex:1; padding:8px 4px; font-size:12.5px; background:#fafafa; border:none; border-right:1px solid var(--line); cursor:pointer; color:var(--muted); }
+  #tabs button { flex:1; padding:8px 4px; font-size:14px; background:#fafafa; border:none; border-right:1px solid var(--line); cursor:pointer; color:var(--muted); }
   #tabs button.on { background:#fff; color:var(--accent); font-weight:600; box-shadow:inset 0 -2px 0 var(--accent); }
-  #pbody { padding:14px; overflow-y:auto; overflow-x:hidden; font-size:13px; flex:1; min-width:0; }
-  #pbody h2 { font-size:15px; margin-bottom:4px; }
-  #pbody h3 { font-size:11.5px; color:var(--accent); letter-spacing:.4px; margin:11px 0 5px; }
-  .rank { color:var(--muted); font-size:12px; margin-bottom:8px; }
-  .tag { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; margin:0 4px 4px 0; border:1px solid var(--line); background:#f1f5f9; }
+  #pbody { padding:14px; overflow-y:auto; overflow-x:hidden; font-size:14.5px; flex:1; min-width:0; }
+  #pbody h2 { font-size:16.5px; margin-bottom:4px; }
+  #pbody h3 { font-size:13px; color:var(--accent); letter-spacing:.4px; margin:11px 0 5px; }
+  .rank { color:var(--muted); font-size:13.5px; margin-bottom:8px; }
+  .tag { display:inline-block; padding:2px 8px; border-radius:10px; font-size:12.5px; margin:0 4px 4px 0; border:1px solid var(--line); background:#f1f5f9; }
   .tag.pri { background:var(--accent); color:#fff; border-color:var(--accent); }
   .tag.meth { border-color:#9db8d2; background:#eaf1f8; }
   .tag.meth.pri { background:#2e75b6; border-color:#2e75b6; }
@@ -37,42 +37,42 @@
   .tag.reg.pri { background:#7a5cb0; border-color:#7a5cb0; }
   .conn { padding:7px 9px; border:1px solid var(--line); border-radius:8px; margin-bottom:6px; cursor:pointer; }
   .conn:hover { border-color:var(--accent); }
-  .conn b { font-size:12.5px; }
-  .conn .w { float:right; color:var(--muted); font-size:11px; }
+  .conn b { font-size:14px; }
+  .conn .w { float:right; color:var(--muted); font-size:12.5px; }
   .conn small { color:var(--muted); display:block; margin-top:2px; }
-  #tip { position:absolute; pointer-events:none; background:rgba(17,24,39,.93); color:#fff; font-size:12px; padding:7px 11px; border-radius:6px; max-width:360px; display:none; z-index:10; line-height:1.55; }
-  #hint { position:absolute; left:12px; bottom:10px; font-size:11px; color:var(--muted); background:rgba(255,255,255,.85); padding:4px 8px; border-radius:6px; }
-  #legend { position:absolute; top:10px; right:12px; z-index:5; background:rgba(255,255,255,.93); border:1px solid var(--line); border-radius:8px; padding:9px 13px; font-size:11px; line-height:2; max-height:calc(100% - 56px); overflow-y:auto; box-shadow:0 1px 4px rgba(0,0,0,.08); }
+  #tip { position:absolute; pointer-events:none; background:rgba(17,24,39,.93); color:#fff; font-size:13.5px; padding:7px 11px; border-radius:6px; max-width:360px; display:none; z-index:10; line-height:1.55; }
+  #hint { position:absolute; left:12px; bottom:10px; font-size:12.5px; color:var(--muted); background:rgba(255,255,255,.85); padding:4px 8px; border-radius:6px; }
+  #legend { position:absolute; top:10px; right:12px; z-index:5; background:rgba(255,255,255,.93); border:1px solid var(--line); border-radius:8px; padding:9px 13px; font-size:12.5px; line-height:2; max-height:calc(100% - 56px); overflow-y:auto; box-shadow:0 1px 4px rgba(0,0,0,.08); }
   #legend .lgdot { width:10px; height:10px; border-radius:3px; display:inline-block; margin-right:7px; vertical-align:-1px; }
-  #legend .lgh { font-weight:600; font-size:10.5px; color:var(--muted); cursor:pointer; user-select:none; }
+  #legend .lgh { font-weight:600; font-size:12px; color:var(--muted); cursor:pointer; user-select:none; }
   #legend.min > *:not(.lgh) { display:none; }
-  #legend .lgtitle { color:var(--muted); font-size:10.5px; margin:4px 0 1px; }
+  #legend .lgtitle { color:var(--muted); font-size:12px; margin:4px 0 1px; }
   #legend .lgtitle:first-child { margin-top:0; }
   #legend svg { vertical-align:-2px; margin-right:6px; }
-  #toast { position:absolute; left:50%; top:14px; transform:translateX(-50%); background:rgba(17,24,39,.92); color:#fff; font-size:12px; padding:7px 16px; border-radius:16px; display:none; z-index:20; }
-  .empty { color:var(--muted); font-size:12.5px; line-height:1.8; }
+  #toast { position:absolute; left:50%; top:14px; transform:translateX(-50%); background:rgba(17,24,39,.92); color:#fff; font-size:13.5px; padding:7px 16px; border-radius:16px; display:none; z-index:20; }
+  .empty { color:var(--muted); font-size:14px; line-height:1.8; }
   .sig { border:1px solid var(--line); border-radius:8px; padding:9px 11px; margin-bottom:8px; }
-  .sig b { font-size:12.5px; }
+  .sig b { font-size:14px; }
   .sig small { color:var(--muted); display:block; margin-top:3px; line-height:1.5; }
-  .sig .x { float:right; border:none; background:none; color:var(--muted); cursor:pointer; font-size:13px; }
-  .edrow { display:flex; align-items:center; gap:6px; margin-bottom:5px; font-size:12px; min-width:0; }
-  .edrow select, .edrow input[type=text], textarea { font-size:12px; padding:3px 6px; border:1px solid var(--line); border-radius:6px; background:#fff; max-width:100%; }
+  .sig .x { float:right; border:none; background:none; color:var(--muted); cursor:pointer; font-size:14.5px; }
+  .edrow { display:flex; align-items:center; gap:6px; margin-bottom:5px; font-size:13.5px; min-width:0; }
+  .edrow select, .edrow input[type=text], textarea { font-size:13.5px; padding:3px 6px; border:1px solid var(--line); border-radius:6px; background:#fff; max-width:100%; }
   .edrow select { min-width:0; }
   .edrow .grow { flex:1; width:100%; }
   .savebar { position:sticky; bottom:0; background:var(--panel); padding:10px 0 4px; }
   .btn.primary { border-color:var(--accent); background:var(--accent); color:#fff; padding:5px 18px; }
   .btn.comp { border-color:var(--comp); background:var(--comp); color:#fff; padding:5px 18px; }
   .muted { color:var(--muted); }
-  .savemsg { font-size:11.5px; margin-left:8px; }
+  .savemsg { font-size:13px; margin-left:8px; }
   @media (max-width: 768px) {
-    header h1 { font-size:14.5px; }
+    header h1 { font-size:16px; }
     header .sub { display:none; }
     main { flex-direction:column; overflow:hidden; }
     #stage { flex:none; height:50vh; min-height:0; }
     #panel { width:100%; flex:1; min-height:0; border-left:none; border-top:1px solid var(--line); }
     #controls { flex-wrap:nowrap; overflow-x:auto; }
-    #legend { font-size:10.5px; padding:6px 10px; max-height:44vh; }
-    #hint { font-size:10px; max-width:55%; }
+    #legend { font-size:12px; padding:6px 10px; max-height:44vh; }
+    #hint { font-size:11.5px; max-width:55%; }
     #pbody { padding:12px; min-height:0; }
   }
 </style>
@@ -91,7 +91,7 @@
   <span class="muted">View:</span>
   <button id="viewSim" class="btn on">Similarity</button>
   <button id="viewComp" class="btn">Complementarity</button>
-  <span class="muted" style="font-size:11px">color = theme domain · purple dashed = complementary pairs</span>
+  <span class="muted" style="font-size:12.5px">color = theme domain · purple dashed = complementary pairs</span>
   <button id="resetBtn" class="btn" style="margin-left:auto">Reset</button>
 </div>
 <main>
@@ -466,14 +466,14 @@ function renderEditPanel(){
   if (!editWho || !DB.faculty[editWho]) editWho = names[0];
   pbody.innerHTML = `
     <div class="edrow"><span>I am:</span><select id="edName" class="grow">${names.map(n=>`<option ${n===editWho?"selected":""}>${n}</option>`).join("")}</select></div>
-    <div id="edForm" class="muted" style="font-size:12px">loading…</div>
+    <div id="edForm" class="muted" style="font-size:13.5px">loading…</div>
     <div class="savebar">
       <button class="btn primary" id="edSave">Save</button>
       <button class="btn" id="edEmail">Send via email</button>
       <button class="btn" id="edCopy">Copy message</button>
       <button class="btn" id="edDownload" style="display:none">Download merged data.json</button>
       <span class="savemsg" id="edMsg"></span>
-      <div style="margin-top:8px;font-size:11px" class="muted" id="edNote">
+      <div style="margin-top:8px;font-size:12.5px" class="muted" id="edNote">
         Weights: <b>● primary (2)</b> = main research identity; <b>○ secondary (1)</b> = active involvement.
       </div>
     </div>`;
@@ -631,7 +631,7 @@ function renderFeedbackPanel(){
     <h3>Your message</h3>
     <textarea id="fbNote" rows="5" style="width:100%" placeholder="e.g. Could “AI & Algorithmic Governance” be added as a theme? Some of my recent collaborations are also missing from the map."></textarea>
     <h3>Preview</h3>
-    <pre id="fbPreview" class="empty" style="white-space:pre-wrap;background:#f8fafc;border:1px solid var(--line);border-radius:8px;padding:8px;font-size:11.5px;line-height:1.6"></pre>
+    <pre id="fbPreview" class="empty" style="white-space:pre-wrap;background:#f8fafc;border:1px solid var(--line);border-radius:8px;padding:8px;font-size:13px;line-height:1.6"></pre>
     <div class="savebar">
       <button class="btn primary" id="fbEmail">Send via email</button>
       <button class="btn" id="fbCopy">Copy message</button>
