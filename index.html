@@ -25,6 +25,9 @@
   #sheetBar { display:none; align-items:center; padding:7px 10px 3px; }
   #sheetBar .grip { width:40px; height:4px; border-radius:2px; background:var(--line); margin:0 auto; }
   #sheetClose { display:none; border:none; background:none; font-size:20px; line-height:1; color:var(--muted); cursor:pointer; padding:0 8px 0 0; margin-left:auto; }
+  #splitter { flex:none; width:7px; cursor:col-resize; background:transparent; position:relative; }
+  #splitter::after { content:""; position:absolute; left:2px; top:50%; transform:translateY(-50%); width:3px; height:36px; border-radius:2px; background:var(--line); transition:background .15s; }
+  #splitter:hover::after { background:var(--accent); }
   #tabs { display:flex; border-bottom:1px solid var(--line); }
   #tabs button { flex:1; padding:8px 4px; font-size:14px; background:#fafafa; border:none; border-right:1px solid var(--line); cursor:pointer; color:var(--muted); }
   #tabs button.on { background:#fff; color:var(--accent); font-weight:600; box-shadow:inset 0 -2px 0 var(--accent); }
@@ -78,8 +81,9 @@
       border-left:none; border-top:1px solid var(--line); border-radius:14px 14px 0 0;
       box-shadow:0 -2px 14px rgba(0,0,0,.14); transform:translateY(104%); transition:transform .22s ease; }
     #panel.open { transform:translateY(0); }
-    #sheetBar { display:flex; }
-    #sheetClose { display:block; }
+    #sheetBar { display:flex; cursor:ns-resize; touch-action:none; }
+    #sheetClose { display:block; cursor:pointer; }
+    #splitter { display:none; }
     #tabs button { padding:10px 4px; }
     #controls { flex-wrap:nowrap; overflow-x:auto; padding:6px 10px; }
     #explain { display:none; }
@@ -114,6 +118,7 @@
     <div id="toast"></div>
     <div id="hint">Drag nodes · Scroll or pinch to zoom · Click / tap a node for details · Hover an edge for scores</div>
   </div>
+  <div id="splitter" title="Drag to resize · double-click to reset"></div>
   <div id="panel">
     <div id="sheetBar"><span class="grip"></span><button id="sheetClose" aria-label="Close panel">×</button></div>
     <div id="tabs">
@@ -480,6 +485,50 @@ function openSheet(){ sheetPanel.classList.add("open"); }
 function closeSheet(){ sheetPanel.classList.remove("open"); }
 document.getElementById("sheetClose").addEventListener("click", ()=>{ closeSheet(); selected=null; if(activeTab==="profile") renderProfilePanel(null); });
 document.querySelectorAll("#tabs button").forEach(b=>b.addEventListener("click",()=>{ setTab(b.dataset.tab); openSheet(); }));
+
+/* ---- manual resize: map area vs profile area ---- */
+function setPanelWidth(w){
+  if (window.innerWidth <= 768){ sheetPanel.style.width = ""; return 0; }
+  const mx = Math.round(window.innerWidth * 0.6);
+  w = Math.max(280, Math.min(mx, Math.round(w)));
+  sheetPanel.style.width = w + "px";
+  return w;
+}
+const splitter = document.getElementById("splitter");
+let splitDrag = null;
+const savedW = parseFloat(localStorage.getItem("pa_hub_panel_w") || "");
+if (savedW) setPanelWidth(savedW);
+splitter.addEventListener("pointerdown", e=>{
+  try { splitter.setPointerCapture(e.pointerId); } catch(err){}
+  splitDrag = { x: e.clientX };
+});
+splitter.addEventListener("pointermove", e=>{
+  if (!splitDrag) return;
+  setPanelWidth(window.innerWidth - e.clientX);
+});
+splitter.addEventListener("pointerup", ()=>{
+  if (splitDrag){ localStorage.setItem("pa_hub_panel_w", String(Math.round(sheetPanel.getBoundingClientRect().width))); splitDrag = null; }
+});
+splitter.addEventListener("pointercancel", ()=>{ splitDrag = null; });
+splitter.addEventListener("dblclick", ()=>{ localStorage.removeItem("pa_hub_panel_w"); sheetPanel.style.width = ""; });
+window.addEventListener("resize", ()=>{ if (window.innerWidth <= 768) sheetPanel.style.width = ""; });
+
+const sheetBarEl = document.getElementById("sheetBar");
+let sheetDragY = null;
+sheetBarEl.addEventListener("pointerdown", e=>{
+  if (e.target && e.target.id === "sheetClose") return;
+  if (window.innerWidth > 768) return;
+  try { sheetBarEl.setPointerCapture(e.pointerId); } catch(err){}
+  sheetDragY = { y: e.clientY, h: sheetPanel.getBoundingClientRect().height };
+});
+sheetBarEl.addEventListener("pointermove", e=>{
+  if (!sheetDragY) return;
+  let h = sheetDragY.h + (sheetDragY.y - e.clientY);
+  h = Math.max(Math.round(window.innerHeight * 0.2), Math.min(Math.round(window.innerHeight * 0.85), h));
+  sheetPanel.style.maxHeight = h + "px";
+});
+sheetBarEl.addEventListener("pointerup", ()=>{ sheetDragY = null; });
+sheetBarEl.addEventListener("pointercancel", ()=>{ sheetDragY = null; });
 
 function connListHTML(n){
   const comp = viewMode==="comp";
