@@ -22,6 +22,9 @@
   canvas { display:block; width:100%; height:100%; cursor:grab; touch-action:none; }
   canvas:active { cursor:grabbing; }
   #panel { width:380px; background:var(--panel); border-left:1px solid var(--line); display:flex; flex-direction:column; min-width:0; }
+  #sheetBar { display:none; align-items:center; padding:7px 10px 3px; }
+  #sheetBar .grip { width:40px; height:4px; border-radius:2px; background:var(--line); margin:0 auto; }
+  #sheetClose { display:none; border:none; background:none; font-size:20px; line-height:1; color:var(--muted); cursor:pointer; padding:0 8px 0 0; margin-left:auto; }
   #tabs { display:flex; border-bottom:1px solid var(--line); }
   #tabs button { flex:1; padding:8px 4px; font-size:14px; background:#fafafa; border:none; border-right:1px solid var(--line); cursor:pointer; color:var(--muted); }
   #tabs button.on { background:#fff; color:var(--accent); font-weight:600; box-shadow:inset 0 -2px 0 var(--accent); }
@@ -65,14 +68,23 @@
   .muted { color:var(--muted); }
   .savemsg { font-size:13px; margin-left:8px; }
   @media (max-width: 768px) {
+    header { padding:7px 12px; }
     header h1 { font-size:16px; }
     header .sub { display:none; }
-    main { flex-direction:column; overflow:hidden; }
-    #stage { flex:none; height:50vh; min-height:0; }
-    #panel { width:100%; flex:1; min-height:0; border-left:none; border-top:1px solid var(--line); }
-    #controls { flex-wrap:nowrap; overflow-x:auto; }
+    header .status { font-size:11px; max-width:42%; text-align:right; }
+    main { flex-direction:column; overflow:hidden; position:relative; }
+    #stage { flex:1; height:auto; min-height:0; }
+    #panel { position:fixed; left:0; right:0; bottom:0; top:auto; width:100%; max-height:52dvh; z-index:15;
+      border-left:none; border-top:1px solid var(--line); border-radius:14px 14px 0 0;
+      box-shadow:0 -2px 14px rgba(0,0,0,.14); transform:translateY(104%); transition:transform .22s ease; }
+    #panel.open { transform:translateY(0); }
+    #sheetBar { display:flex; }
+    #sheetClose { display:block; }
+    #tabs button { padding:10px 4px; }
+    #controls { flex-wrap:nowrap; overflow-x:auto; padding:6px 10px; }
+    #explain { display:none; }
     #legend { font-size:12px; padding:6px 10px; max-height:44vh; }
-    #hint { font-size:11.5px; max-width:55%; }
+    #hint { font-size:11px; max-width:60%; left:8px; bottom:6px; }
     #pbody { padding:12px; min-height:0; }
   }
 </style>
@@ -91,7 +103,7 @@
   <span class="muted">View:</span>
   <button id="viewSim" class="btn on">Similarity</button>
   <button id="viewComp" class="btn">Complementarity</button>
-  <span class="muted" style="font-size:12.5px">color = theme domain · purple dashed = complementary pairs</span>
+  <span class="muted" id="explain" style="font-size:12.5px">color = theme domain · purple dashed = complementary pairs</span>
   <button id="resetBtn" class="btn" style="margin-left:auto">Reset</button>
 </div>
 <main>
@@ -103,6 +115,7 @@
     <div id="hint">Drag nodes · Scroll or pinch to zoom · Click / tap a node for details · Hover an edge for scores</div>
   </div>
   <div id="panel">
+    <div id="sheetBar"><span class="grip"></span><button id="sheetClose" aria-label="Close panel">×</button></div>
     <div id="tabs">
       <button data-tab="profile" class="on">Profile</button>
       <button data-tab="edit">Edit My Profile</button>
@@ -212,6 +225,18 @@ function ensureSize(){ if (stage.clientWidth>0 && canvas.width !== Math.round(st
   const had=W; resize(); if (had===0) nodes.forEach(n=>{n.x=Math.random()*W; n.y=Math.random()*H;}); } }
 if (typeof ResizeObserver !== "undefined") new ResizeObserver(ensureSize).observe(stage);
 setInterval(ensureSize, 500);
+function fitView(){
+  if (!nodes.length || !W || !H) return;
+  let x0=1e9, y0=1e9, x1=-1e9, y1=-1e9;
+  nodes.forEach(n=>{ const r=nodeRadius(n);
+    x0=Math.min(x0,n.x-r-55); y0=Math.min(y0,n.y-r-40);
+    x1=Math.max(x1,n.x+r+55); y1=Math.max(y1,n.y+r+40); });
+  const bw=Math.max(x1-x0,1), bh=Math.max(y1-y0,1);
+  zoom = Math.max(0.4, Math.min(W/bw, H/bh, 1.3));
+  panX = W/2 - (x0+x1)/2*zoom; panY = H/2 - (y0+y1)/2*zoom;
+}
+let fitTimer = null;
+window.addEventListener("resize", ()=>{ clearTimeout(fitTimer); fitTimer=setTimeout(fitView, 300); });
 
 function rebuildNetwork(){
   const oldPos = Object.fromEntries(nodes.map(n=>[n.id, [n.x, n.y]]));
@@ -299,7 +324,8 @@ function draw(){
     drawShape(n.x,n.y,r,"circle",groupColor(n.group),n===focus||n===hoverNode);
     if((dimAll&&!isF)||!ok){ ctx.beginPath(); ctx.arc(n.x,n.y,r+3,0,Math.PI*2); ctx.fillStyle="rgba(247,248,250,0.75)"; ctx.fill(); }
     if(ok&&!((dimAll)&&!isF)){
-      ctx.font="bold 11px sans-serif"; ctx.fillStyle="#1f2933"; ctx.textAlign="center";
+      const mobileUI = window.innerWidth < 768;
+      ctx.font="bold "+(mobileUI?13:11)+"px sans-serif"; ctx.fillStyle="#1f2933"; ctx.textAlign="center";
       ctx.fillText(n.id, n.x, n.y+r+13);
     }
   });
@@ -419,15 +445,17 @@ canvas.addEventListener("pointermove", e=>{
   }
   const [mx,my] = canvasPos(e);
   if (dragging){ const [wx,wy]=toWorld(mx,my); dragging.x=wx; dragging.y=wy; dragging.vx=0; dragging.vy=0; dragMoved=true; return; }
-  if (panning){ panX=panning.px+(mx-panning.x); panY=panning.py+(my-panning.y); return; }
+  if (panning){ panX=panning.px+(mx-panning.x); panY=panning.py+(my-panning.y); dragMoved=true; return; }
   if (e.pointerType === "mouse") updateHover(mx,my);
 });
 function endPointer(e){
   const wasTap = dragging && !dragMoved;
+  const emptyTap = panning && !dragMoved;
   pointers.delete(e.pointerId);
   if (pointers.size < 2) pinch = null;
   if (pointers.size === 0){
-    if (wasTap){ selected = dragging; setTab("profile"); renderProfilePanel(selected); }
+    if (wasTap){ selected = dragging; setTab("profile"); renderProfilePanel(selected); openSheet(); }
+    if (emptyTap){ selected = null; closeSheet(); if (activeTab==="profile") renderProfilePanel(null); }
     dragging = null; panning = null; dragMoved = false;
     if (e.pointerType !== "mouse"){ hoverNode = null; hoverEdge = null; tip.style.display = "none"; }
   }
@@ -447,7 +475,11 @@ function setTab(tab){
   if (tab==="edit") renderEditPanel();
   if (tab==="feedback") renderFeedbackPanel();
 }
-document.querySelectorAll("#tabs button").forEach(b=>b.addEventListener("click",()=>setTab(b.dataset.tab)));
+const sheetPanel = document.getElementById("panel");
+function openSheet(){ sheetPanel.classList.add("open"); }
+function closeSheet(){ sheetPanel.classList.remove("open"); }
+document.getElementById("sheetClose").addEventListener("click", ()=>{ closeSheet(); selected=null; if(activeTab==="profile") renderProfilePanel(null); });
+document.querySelectorAll("#tabs button").forEach(b=>b.addEventListener("click",()=>{ setTab(b.dataset.tab); openSheet(); }));
 
 function connListHTML(n){
   const comp = viewMode==="comp";
@@ -759,8 +791,11 @@ setInterval(()=>{ if (MODE === "live") loadData(false).catch(()=>{}); }, 8000);
 (async ()=>{
   try { await loadData(true); }
   catch(e){ document.getElementById("status").textContent = "cannot load data — run server.py or keep data.json next to index.html"; }
+  if (window.innerWidth < 768) document.getElementById("hint").textContent =
+    "Tap a node for details · pinch to zoom · drag to pan";
   renderProfilePanel(null);
   loop();
+  setTimeout(fitView, 1600); setTimeout(fitView, 4000);
 })();
 </script>
 </body>
