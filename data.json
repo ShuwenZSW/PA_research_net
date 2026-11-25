@@ -33,6 +33,7 @@
   "T31": "Bureaucratic Behavior & Cadre Management",
   "T32": "Civic Participation",
   "T33": "Political Legitimacy & Civil Society",
+  "T34": "Political Culture & Value Change",
   "T35": "Program & Performance Evaluation",
   "T36": "Government Innovation & Policy Diffusion"
  },
@@ -225,15 +226,14 @@
   "La LI": {
    "rank": "Assistant Professor",
    "themes": {
+    "T34": 2,
     "T26": 2,
     "T01": 2,
-    "T12": 1,
     "T25": 1
    },
    "methods": {
     "M5": 2,
-    "M1": 1,
-    "M2": 1
+    "M1": 1
    },
    "regions": {
     "R1": 2,
