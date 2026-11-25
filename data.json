@@ -22,7 +22,6 @@
   "T19": "Adolescent Health Risk & Prevention",
   "T20": "Intergovernmental Collaboration & Regional Governance",
   "T21": "Government Contracting & Service Outsourcing",
-  "T22": "Contractual Accountability & Regulatory Enforcement",
   "T23": "Urban Governance & Urban Policy",
   "T24": "Legislative Institutions & Legislative Politics",
   "T25": "Policymaking & Bureaucratic Politics",
@@ -142,7 +141,7 @@
    "rank": "Associate Professor",
    "themes": {
     "T30": 2,
-    "T22": 2,
+    "T24": 2,
     "T28": 2,
     "T31": 1
    },
@@ -209,8 +208,7 @@
    "themes": {
     "T24": 2,
     "T25": 2,
-    "T26": 1,
-    "T22": 1
+    "T26": 1
    },
    "methods": {
     "M3": 2,
@@ -291,7 +289,6 @@
    "themes": {
     "T20": 2,
     "T21": 2,
-    "T22": 2,
     "T23": 2,
     "T36": 2
    },
